@@ -7,16 +7,43 @@
 int main()
 {
     SDL_Window* window;
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO); // Initialize subsystems
 
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+
+    // Creating window
     window = SDL_CreateWindow(
-        "horse-2.0",
-        SDL_Window_center
+        "horse-2.0",            // title name
+        SDL_WINDOWPOS_CENTERED, // x pos
+        SDL_WINDOWPOS_CENTERED, // y pos
+        640,                    // height
+        480,                    // width
+        SDL_WINDOW_OPENGL       // Unit32 flags
     );
 
+    // Window error check
+    if (window == NULL) {
+        printf("Could not create window: %s\n", SDL_GetError());
+        return 1;
+    }
+
+    SDL_GLContext context = SDL_GL_CreateContext(window);
+    if (context == NULL) {
+        printf("Could not create context: %s\n", SDL_GetError());
+        return 1;
+    }
 
 
-    std::cout << "Hello World!\n";
+    SDL_Delay(3000);
+    SDL_FlashOperation(SDL_FLASH_UNTIL_FOCUSED);
+    SDL_Delay(2000);
+
+    SDL_DestroyWindow(window);
+    SDL_Quit;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
