@@ -11,9 +11,9 @@ bool quit = false;
 
 void GetOpenGLVersionInfo() {
     printf("Vendor: %s\n", glGetString(GL_VENDOR));
-    printf("Renderer: % s\n", glGetString(GL_RENDERER));
-    printf("Version: % s\n", glGetString(GL_VERSION));
-    printf("Shading Language: % s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    printf("Renderer: %s\n", glGetString(GL_RENDERER));
+    printf("Version: %s\n", glGetString(GL_VERSION));
+    printf("Shading Language: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
 void InitializeProgram() {
@@ -35,8 +35,8 @@ void InitializeProgram() {
         "horse-2.0",            // title name
         SDL_WINDOWPOS_CENTERED, // x pos
         SDL_WINDOWPOS_CENTERED, // y pos
-        screenWidth,           // height
-        screenHeight,            // width
+        screenWidth,            // width
+        screenHeight,           // height
         SDL_WINDOW_OPENGL       // Unit32 flags
     );
 
@@ -53,6 +53,14 @@ void InitializeProgram() {
         exit(1);
     }
 
+    // Initialize the Glad Library
+
+    if (!gladLoadGLLoader(SDL_GL_GetProcAddress)) {
+        printf("Could not initialize glad.\n");
+        exit(1);
+    }
+
+    GetOpenGLVersionInfo();
 }
 
 // SDL Input Handling
@@ -77,7 +85,6 @@ void Draw() {
 }
 
 void MainLoop() {
-      
     while (!quit) {
         Input();
 
