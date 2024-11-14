@@ -8,15 +8,13 @@ int screenHeight = 480, screenWidth = 640;
 SDL_Window* window = nullptr;
 SDL_GLContext context = nullptr;
 
-//float* verticies;
-
 bool quit = false;
 
 // VAO
 GLuint vertexArrayObject = 0;
 // VBO
 GLuint vertexBufferObject = 0;
-// Program Objects(for our shaders)
+// Program Objects (for shaders)
 GLuint graphicsPipelineShaderProgram = 0;
 
 // Vertex shader executes once per vertex
@@ -25,7 +23,7 @@ const std::string vertexShaderSource =
     "#version 410 core\n"
     "in vec4 position;\n"
     "void main() {\n"
-    "   gl_Position = vec4(position.x, position.y, position.z);\n"
+    "   gl_Position = vec4(position.x, position.y, position.z, position.w);\n"
     "}\n";
 
 // Fragment shader executes once per fragment (pixel)
@@ -34,7 +32,7 @@ const std::string fragmentShaderSource =
     "#version 410 core\n"
     "out vec4 color;\n"
     "void main() {\n"
-    "   color = vec4(1.0f, 0.5f, 0.0f, 1.0f);\n"
+    "   color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\n";
 
 GLuint CompileShader(GLuint type, const std::string& source) {
@@ -42,25 +40,34 @@ GLuint CompileShader(GLuint type, const std::string& source) {
 
     if (type == GL_VERTEX_SHADER) {
         shaderObject = glCreateShader(GL_VERTEX_SHADER);
-    }
-    else if (type == GL_FRAGMENT_SHADER) {
+    } else if (type == GL_FRAGMENT_SHADER) {
         shaderObject = glCreateShader(GL_FRAGMENT_SHADER);
     }
 
-    const char* src = source.c_str();
-    glShaderSource(shaderObject, 1, &src, nullptr);
-    glCompileShader(shaderObject);
+    const char* src = source.c_str();                           // gets string source code
+    glShaderSource(shaderObject, 1, &src, nullptr);             // copies shader source code string
+    glCompileShader(shaderObject);                              // compiles
+
+    // Error checking
+    int success;
+    char infoLog[512];
+    glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(shaderObject, 512, NULL, infoLog);
+        printf("Shader could not be compiled!\n");
+    }
 
     return shaderObject;
 }
 
 GLuint CreateShaderProgram(const std::string& vs, const std::string& fs) {
-    GLuint programObject = glCreateProgram();
-    GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vs);
-    GLuint fragmentShader = CompileShader(GL_VERTEX_SHADER, fs);
+    GLuint programObject = glCreateProgram();                   // shader-attachable program object, used to link shaders  
+    GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vs);  
+    GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, fs);
 
     glAttachShader(programObject, vertexShader);
     glAttachShader(programObject, fragmentShader);
+    glLinkProgram(programObject);                               // link shader objects
 
     // Validate program
     glValidateProgram(programObject);
@@ -140,20 +147,30 @@ void Input() {
 
 // Open GL Drawing
 void PreDraw() {
-    
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+
+    glViewport(0, 0, screenWidth, screenHeight);        // creates a viewport starting left corner (0,0) 
+    glClearColor(0.2f, 0.3f, .3f, 1.0f);
+   
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glUseProgram(graphicsPipelineShaderProgram);        // modifying shaders in program object will not affect curr executables
 }
 
 void Draw() {
+    glBindVertexArray(vertexArrayObject);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
 
+    glDrawArrays(GL_TRIANGLES_ADJACENCY_ARB, 0, 3);
 }
 
 void VertexSpecification() {
     const std::vector<GLfloat> vertexPosition{  // Create dynamic array
-        // Diamond
-        -0.25f, 0.0f, 0.0f,
-        0.0f, 0.25f, 0.0f,
-        0.25f, 0.0f, 0.0f,
-        0.0f, -0.25f, 0.0f
+        // Triangle
+        -0.5f, -0.5f, 0.0f,     // left-bot
+        0.0f, 0.5f, 0.0f,       // top
+        0.5f, -0.5f, 0.0f,       // right-bot
     };
 
     //verticies = vertexPosition;
@@ -172,9 +189,6 @@ void VertexSpecification() {
 
     glBindVertexArray(0);
     glDisableVertexAttribArray(0);
-
-    const char* vertexShaderSource =
-        "#version";
 }
 
 void MainLoop() {
@@ -191,17 +205,24 @@ void MainLoop() {
 }
 
 void CleanUp() {
+
+
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
-#undef main
+#undef main // bug fix: potential overlap of main declaration in SDL??
 int main()
 {
     InitializeProgram();
+
     VertexSpecification();
+
     CreateGraphicsPipeline();
+    
     MainLoop();
+    
     CleanUp();
+    
     return 0;
 }
