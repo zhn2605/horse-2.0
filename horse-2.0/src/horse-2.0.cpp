@@ -1,6 +1,9 @@
 #include <SDL.h>
+#include <glm.hpp>
 #include <glad/glad.h>
+#include <fstream>
 #include <iostream>
+#include <string>
 #include <vector>
 
 // Globals
@@ -13,27 +16,26 @@ bool quit = false;
 // VAO
 GLuint vertexArrayObject = 0;
 // VBO
-GLuint vertexBufferObject = 0;
+GLuint vertexBufferObject = 0;      // position
 // Program Objects (for shaders)
+GLuint elementBufferObject = 0;
+
 GLuint graphicsPipelineShaderProgram = 0;
 
-// Vertex shader executes once per vertex
-// in charge of final position of vertex
-const std::string vertexShaderSource =
-    "#version 410 core\n"
-    "in vec4 position;\n"
-    "void main() {\n"
-    "   gl_Position = vec4(position.x, position.y, position.z, position.w);\n"
-    "}\n";
+std::string LoadShaderAsString(const std::string& filename) {
+    std::string result = "";
 
-// Fragment shader executes once per fragment (pixel)
-// in part determines final color sent to screen
-const std::string fragmentShaderSource =
-    "#version 410 core\n"
-    "out vec4 color;\n"
-    "void main() {\n"
-    "   color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n";
+    std::string line = "";
+    std::ifstream file(filename.c_str());
+
+    if (file.is_open()) {
+        while (std::getline(file, line)) {
+            result += line + '\n';
+        }
+        file.close();
+    }
+    return result;
+}
 
 GLuint CompileShader(GLuint type, const std::string& source) {
     GLuint shaderObject;
@@ -54,7 +56,7 @@ GLuint CompileShader(GLuint type, const std::string& source) {
     glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(shaderObject, 512, NULL, infoLog);
-        printf("Shader could not be compiled!\n");
+        printf("Shader could not be compiled: %s\n", infoLog);
     }
 
     return shaderObject;
@@ -70,12 +72,18 @@ GLuint CreateShaderProgram(const std::string& vs, const std::string& fs) {
     glLinkProgram(programObject);                               // link shader objects
 
     // Validate program
-    glValidateProgram(programObject);
-    // glDetachShader / deelte shader
+    glValidateProgram(programObject);                           // checks whether the executable in proramObject can execute currently
+    // glDetachShader / delte shader
+    glDetachShader(programObject, vertexShader | fragmentShader);
+    glDeleteShader(vertexShader | fragmentShader);
+
     return programObject;
 }
 
 void CreateGraphicsPipeline() {
+    std::string vertexShaderSource = LoadShaderAsString("./shaders/vert.glsl");
+    std::string fragmentShaderSource = LoadShaderAsString("./shaders/frag.glsl");
+
     graphicsPipelineShaderProgram = CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
 }
 
@@ -145,35 +153,27 @@ void Input() {
     }
 }
 
-// Open GL Drawing
-void PreDraw() {
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-
-    glViewport(0, 0, screenWidth, screenHeight);        // creates a viewport starting left corner (0,0) 
-    glClearColor(0.2f, 0.3f, .3f, 1.0f);
-   
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glUseProgram(graphicsPipelineShaderProgram);        // modifying shaders in program object will not affect curr executables
-}
-
-void Draw() {
-    glBindVertexArray(vertexArrayObject);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-
-    glDrawArrays(GL_TRIANGLES_ADJACENCY_ARB, 0, 3);
-}
-
 void VertexSpecification() {
-    const std::vector<GLfloat> vertexPosition{  // Create dynamic array
-        // Triangle
-        -0.5f, -0.5f, 0.0f,     // left-bot
-        0.0f, 0.5f, 0.0f,       // top
-        0.5f, -0.5f, 0.0f,       // right-bot
+    const std::vector<GLfloat> vertices{  // Create dynamic array
+        // Diamond
+        -0.25f, 0.0f, 0.0f,     // left
+        0.25f, 0.5f, 0.25f,     // color
+
+        0.0f, 0.25f, 0.0f,       // top
+        0.25f, .25f, 0.5f,      // color
+
+        0.25f, 0.0f, 0.0f,      // right
+        0.5f, 0.25f, 0.25f,     // color
+
+        0.0f, -0.25f, 0.0f,     // bottom
+        0.25f, 0.5f, 0.25f,     // color
     };
 
-    //verticies = vertexPosition;
+
+    const std::vector<GLint> vertexIndicies{
+        0, 1, 2,                // top triangle
+        0, 3, 2,                // bot triangle
+    };
 
     // VAO Specification
     glGenVertexArrays(1, &vertexArrayObject);
@@ -182,13 +182,61 @@ void VertexSpecification() {
     // Create VBO
     glGenBuffers(1, &vertexBufferObject);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, vertexPosition.size() * sizeof(GLfloat), vertexPosition.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glVertexAttribPointer(
+        0,
+        3, // xyz
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(GL_FLOAT) * 6,
+        (void*)0
+    );
+
+    // Enable color 
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(
+        1,
+        3, // rgb
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(GL_FLOAT) * 6,
+        (void*)(sizeof(GL_FLOAT) * 3)
+    );
+
+    // Create EBO
+    glGenBuffers(1, &elementBufferObject);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndicies.size() * sizeof(GLint), vertexIndicies.data(), GL_STATIC_DRAW);
 
     glBindVertexArray(0);
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+}
+
+// Open GL Drawing
+void PreDraw() {
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+
+    glViewport(0, 0, screenWidth, screenHeight);        // creates a viewport starting left corner (0,0) 
+    glClearColor(0.2f, 0.3f, .3f, 1.0f);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glUseProgram(graphicsPipelineShaderProgram);        // modifying shaders in program object will not affect curr executables
+}
+
+void Draw() {
+    // Sin diamond test
+    glBindVertexArray(vertexArrayObject);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
+
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }
 
 void MainLoop() {
@@ -205,7 +253,13 @@ void MainLoop() {
 }
 
 void CleanUp() {
+    
+    // Delete OpenGL objects
+    glDeleteBuffers(1, &vertexBufferObject);
+    glDeleteVertexArrays(1, &vertexArrayObject);
 
+    // Delete pipeline
+    glDeleteProgram(graphicsPipelineShaderProgram);
 
     SDL_DestroyWindow(window);
     SDL_Quit();
