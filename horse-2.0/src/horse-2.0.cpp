@@ -1,10 +1,12 @@
 #include <SDL.h>
-#include <glm.hpp>
+#include <glm/mat4x4.hpp>
 #include <glad/glad.h>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "Shader.hpp"
 
 // Globals
 int screenHeight = 480, screenWidth = 640;
@@ -21,6 +23,8 @@ GLuint vertexBufferObject = 0;      // position
 GLuint elementBufferObject = 0;
 
 GLuint graphicsPipelineShaderProgram = 0;
+
+float y_uOffset = 0.0f, x_uOffset = 0.0f, z_uOffset = 0.0f;
 
 std::string LoadShaderAsString(const std::string& filename) {
     std::string result = "";
@@ -42,7 +46,8 @@ GLuint CompileShader(GLuint type, const std::string& source) {
 
     if (type == GL_VERTEX_SHADER) {
         shaderObject = glCreateShader(GL_VERTEX_SHADER);
-    } else if (type == GL_FRAGMENT_SHADER) {
+    }
+    else if (type == GL_FRAGMENT_SHADER) {
         shaderObject = glCreateShader(GL_FRAGMENT_SHADER);
     }
 
@@ -64,7 +69,7 @@ GLuint CompileShader(GLuint type, const std::string& source) {
 
 GLuint CreateShaderProgram(const std::string& vs, const std::string& fs) {
     GLuint programObject = glCreateProgram();                   // shader-attachable program object, used to link shaders  
-    GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vs);  
+    GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vs);
     GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, fs);
 
     glAttachShader(programObject, vertexShader);
@@ -151,6 +156,16 @@ void Input() {
             quit = true;
         }
     }
+
+    // Retrieve keyboard state
+    const Uint8* state = SDL_GetKeyboardState(NULL);
+    if (state[SDL_SCANCODE_UP]) {
+        y_uOffset += .001f;
+
+    }
+    if (state[SDL_SCANCODE_DOWN]) {
+        y_uOffset -= .001f;
+    }
 }
 
 void VertexSpecification() {
@@ -226,6 +241,13 @@ void PreDraw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(graphicsPipelineShaderProgram);        // modifying shaders in program object will not affect curr executables
+    GLint location = glGetUniformLocation(graphicsPipelineShaderProgram, "u_Offset");
+    if (location >= 0) {
+        glUniform1f(location, y_uOffset);
+    } 
+    else {
+        std::cout << "could not find location of u_Offset. Mispelling?" << std::endl;
+    }
 }
 
 void Draw() {
@@ -253,7 +275,7 @@ void MainLoop() {
 }
 
 void CleanUp() {
-    
+
     // Delete OpenGL objects
     glDeleteBuffers(1, &vertexBufferObject);
     glDeleteVertexArrays(1, &vertexArrayObject);
@@ -273,10 +295,10 @@ int main()
     VertexSpecification();
 
     CreateGraphicsPipeline();
-    
+
     MainLoop();
-    
+
     CleanUp();
-    
+
     return 0;
 }
