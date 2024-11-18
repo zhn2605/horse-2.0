@@ -1,11 +1,18 @@
-#include <SDL.h>
-#include <glm/mat4x4.hpp>
-#include <glad/glad.h>
+// C++ STL
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 
+// Libraries
+#include <SDL.h>
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+// Header files
 #include "Shader.hpp"
 
 // Globals
@@ -24,7 +31,7 @@ GLuint elementBufferObject = 0;
 
 GLuint graphicsPipelineShaderProgram = 0;
 
-float y_uOffset = 0.0f, x_uOffset = 0.0f, z_uOffset = 0.0f;
+float uOffset = 0.0f;
 
 std::string LoadShaderAsString(const std::string& filename) {
     std::string result = "";
@@ -160,11 +167,11 @@ void Input() {
     // Retrieve keyboard state
     const Uint8* state = SDL_GetKeyboardState(NULL);
     if (state[SDL_SCANCODE_UP]) {
-        y_uOffset += .001f;
+        uOffset += .001f;
 
     }
     if (state[SDL_SCANCODE_DOWN]) {
-        y_uOffset -= .001f;
+        uOffset -= .001f;
     }
 }
 
@@ -172,16 +179,16 @@ void VertexSpecification() {
     const std::vector<GLfloat> vertices{  // Create dynamic array
         // Diamond
         -0.25f, 0.0f, 0.0f,     // left
-        0.25f, 0.5f, 0.25f,     // color
+        139.0f, 0.5f, 0.25f,     // color
 
         0.0f, 0.25f, 0.0f,       // top
-        0.25f, .25f, 0.5f,      // color
+        139.0f, .25f, 0.5f,      // color
 
         0.25f, 0.0f, 0.0f,      // right
-        0.5f, 0.25f, 0.25f,     // color
+        139.0f, 0.25f, 0.25f,     // color
 
         0.0f, -0.25f, 0.0f,     // bottom
-        0.25f, 0.5f, 0.25f,     // color
+        139.0f, 0.5f, 0.25f,     // color
     };
 
 
@@ -241,12 +248,29 @@ void PreDraw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(graphicsPipelineShaderProgram);        // modifying shaders in program object will not affect curr executables
-    GLint location = glGetUniformLocation(graphicsPipelineShaderProgram, "u_Offset");
-    if (location >= 0) {
-        glUniform1f(location, y_uOffset);
+
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, uOffset));
+
+    GLint u_ModelMatrixlocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_ModelMatrix");
+
+    if (u_ModelMatrixlocation >= 0) {
+        glUniformMatrix4fv(u_ModelMatrixlocation, 1, GL_FALSE, &translate[0][0]);
     } 
     else {
-        std::cout << "could not find location of u_Offset. Mispelling?" << std::endl;
+        std::cout << "could not find location of u_ModelMatrix. Mispelling?" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)screenWidth/(float)screenHeight, 0.1f, 10.0f);
+
+    GLint u_PerspectiveLocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_Perspective");
+
+    if (u_PerspectiveLocation >= 0) {
+        glUniformMatrix4fv(u_PerspectiveLocation, 1, GL_FALSE, &perspective[0][0]);
+    }
+    else {
+        std::cout << "could not find location of u_PerspectiveLocation. Mispelling?" << std::endl;
+        exit(EXIT_FAILURE);
     }
 }
 
