@@ -14,6 +14,7 @@
 
 // Header files
 #include "Shader.hpp"
+#include "Camera.hpp"
 
 // Globals
 int screenHeight = 480, screenWidth = 640;
@@ -34,6 +35,8 @@ GLuint graphicsPipelineShaderProgram = 0;
 float uOffset = -2.0f;
 float uRotate = 0.0f;
 float uScale = 1.0f;
+
+Camera camera;
 
 std::string LoadShaderAsString(const std::string& filename) {
     std::string result = "";
@@ -148,7 +151,7 @@ void InitializeProgram() {
     // Initialize the Glad Library
 
     if (!gladLoadGLLoader(SDL_GL_GetProcAddress)) {
-        printf("Could not initialize glad.\n");
+        std::cout << "Could not initialize glad.\n" << std::endl;
         exit(1);
     }
 
@@ -157,30 +160,50 @@ void InitializeProgram() {
 
 // SDL Input Handling
 void Input() {
+    static int mouseX = screenWidth / 2;
+    static int mouseY = screenHeight / 2;
+
     SDL_Event e;
 
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) {
-            printf("goodbye!!");
+            std::cout << "goodbye!!" << std::endl;
             quit = true;
+        }
+        else if (e.type == SDL_MOUSEMOTION) {
+            mouseX += e.motion.xrel;
+            mouseY += e.motion.yrel;
+            camera.MouseLook(mouseX, mouseY);
         }
     }
 
+   /* uOffset += .001f;
+    uOffset -= .001f;
+    uRotate += .01f;
+    uRotate -= .01f;*/
+
     // Retrieve keyboard state
     const Uint8* state = SDL_GetKeyboardState(NULL);
+
+    float speed = 0.001f;
     if (state[SDL_SCANCODE_W]) {
-        uOffset += .001f;
+        camera.MoveForward(speed);
     }
     if (state[SDL_SCANCODE_S]) {
-        uOffset -= .001f;
+        camera.MoveBackward(speed);
     }
     if (state[SDL_SCANCODE_D]) {
-        uRotate += .1f;
+        camera.MoveRight(speed);
     }
     if (state[SDL_SCANCODE_A]) {
-        uRotate -= .1f;
+        camera.MoveLeft(speed);
     }
-
+    if (state[SDL_SCANCODE_C]) {
+        camera.MoveDown(speed);
+    }
+    if (state[SDL_SCANCODE_SPACE]) {
+        camera.MoveUp(speed);
+    }
 }
 
 void VertexSpecification() {
@@ -257,13 +280,19 @@ void PreDraw() {
 
     glUseProgram(graphicsPipelineShaderProgram);        // modifying shaders in program object will not affect curr executables
 
+    // Important: ORDER MATTERS (T, R, S for rotation around object. R, T, S for simulated rotation around us
+    // Rotation test
+    uRotate -= .1f;
+    //std::cout << "uRotate: " << uRotate << std::endl;
+
+    // Translate
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, uOffset));
-
-    model = glm::rotate(model, glm::radians(uRotate), glm::vec3(1.0f, 1.0f, 1.0f));
+    // Rotate
+    model = glm::rotate(model, glm::radians(uRotate), glm::vec3(0.0f, 1.0f, 0.0f));
+    // Scale
     model = glm::scale(model, glm::vec3(uScale, uScale, uScale));
-
+    
     GLint u_ModelMatrixLocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_ModelMatrix");
-
     if (u_ModelMatrixLocation >= 0) {
         glUniformMatrix4fv(u_ModelMatrixLocation, 1, GL_FALSE, &model[0][0]);
     } 
@@ -271,11 +300,20 @@ void PreDraw() {
         std::cout << "could not find location of u_ModelMatrix. Mispelling?" << std::endl;
         exit(EXIT_FAILURE);
     }
+    
+    // View Matrix
+    glm::mat4 view = camera.GetViewMatrix();
+    GLint u_viewLocataion = glGetUniformLocation(graphicsPipelineShaderProgram, "u_ViewMatrix");
+    if (u_viewLocataion >= 0) {
+        glUniformMatrix4fv(u_viewLocataion, 1, GL_FALSE, &view[0][0]);
+    }
+    else {
+        std::cout << "could not find location of u_View. Mispelling?" << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
     glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)screenWidth/(float)screenHeight, 0.1f, 10.0f);
-
     GLint u_ProjectionLocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_Projection");
-
     if (u_ProjectionLocation >= 0) {
         glUniformMatrix4fv(u_ProjectionLocation, 1, GL_FALSE, &perspective[0][0]);
     }
@@ -296,6 +334,13 @@ void Draw() {
 }
 
 void MainLoop() {
+
+    // Set mouse in middle of window
+    SDL_WarpMouseInWindow(window, screenWidth/2, screenHeight/2);
+
+    // Set mouse to move relatively within application
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+
     while (!quit) {
         Input();
 
