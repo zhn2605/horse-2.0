@@ -31,7 +31,9 @@ GLuint elementBufferObject = 0;
 
 GLuint graphicsPipelineShaderProgram = 0;
 
-float uOffset = 0.0f;
+float uOffset = -2.0f;
+float uRotate = 0.0f;
+float uScale = 1.0f;
 
 std::string LoadShaderAsString(const std::string& filename) {
     std::string result = "";
@@ -166,29 +168,35 @@ void Input() {
 
     // Retrieve keyboard state
     const Uint8* state = SDL_GetKeyboardState(NULL);
-    if (state[SDL_SCANCODE_UP]) {
+    if (state[SDL_SCANCODE_W]) {
         uOffset += .001f;
-
     }
-    if (state[SDL_SCANCODE_DOWN]) {
+    if (state[SDL_SCANCODE_S]) {
         uOffset -= .001f;
     }
+    if (state[SDL_SCANCODE_D]) {
+        uRotate += .1f;
+    }
+    if (state[SDL_SCANCODE_A]) {
+        uRotate -= .1f;
+    }
+
 }
 
 void VertexSpecification() {
     const std::vector<GLfloat> vertices{  // Create dynamic array
         // Diamond
         -0.25f, 0.0f, 0.0f,     // left
-        139.0f, 0.5f, 0.25f,     // color
+        139.0f, 0.25f, 0.5f,     // color
 
         0.0f, 0.25f, 0.0f,       // top
-        139.0f, .25f, 0.5f,      // color
+        139.0f, 0.5f, 0.25f,      // color
 
         0.25f, 0.0f, 0.0f,      // right
-        139.0f, 0.25f, 0.25f,     // color
+        139.0f, 0.55f, 0.3f,     // color
 
         0.0f, -0.25f, 0.0f,     // bottom
-        139.0f, 0.5f, 0.25f,     // color
+        139.0f, 0.15f, 0.15f,     // color
     };
 
 
@@ -249,12 +257,15 @@ void PreDraw() {
 
     glUseProgram(graphicsPipelineShaderProgram);        // modifying shaders in program object will not affect curr executables
 
-    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, uOffset));
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, uOffset));
 
-    GLint u_ModelMatrixlocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_ModelMatrix");
+    model = glm::rotate(model, glm::radians(uRotate), glm::vec3(1.0f, 1.0f, 1.0f));
+    model = glm::scale(model, glm::vec3(uScale, uScale, uScale));
 
-    if (u_ModelMatrixlocation >= 0) {
-        glUniformMatrix4fv(u_ModelMatrixlocation, 1, GL_FALSE, &translate[0][0]);
+    GLint u_ModelMatrixLocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_ModelMatrix");
+
+    if (u_ModelMatrixLocation >= 0) {
+        glUniformMatrix4fv(u_ModelMatrixLocation, 1, GL_FALSE, &model[0][0]);
     } 
     else {
         std::cout << "could not find location of u_ModelMatrix. Mispelling?" << std::endl;
@@ -263,13 +274,13 @@ void PreDraw() {
 
     glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)screenWidth/(float)screenHeight, 0.1f, 10.0f);
 
-    GLint u_PerspectiveLocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_Perspective");
+    GLint u_ProjectionLocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_Projection");
 
-    if (u_PerspectiveLocation >= 0) {
-        glUniformMatrix4fv(u_PerspectiveLocation, 1, GL_FALSE, &perspective[0][0]);
+    if (u_ProjectionLocation >= 0) {
+        glUniformMatrix4fv(u_ProjectionLocation, 1, GL_FALSE, &perspective[0][0]);
     }
     else {
-        std::cout << "could not find location of u_PerspectiveLocation. Mispelling?" << std::endl;
+        std::cout << "could not find location of u_Projection. Mispelling?" << std::endl;
         exit(EXIT_FAILURE);
     }
 }
@@ -279,7 +290,6 @@ void Draw() {
     glBindVertexArray(vertexArrayObject);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
-
 
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
