@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-// Libraries
+// Third Party Libraries
 #include <SDL.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -12,16 +12,13 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// Header files
+// Libraries
 #include "Shader.hpp"
 #include "Camera.hpp"
+#include "App.hpp"
 
-// Globals
-int screenHeight = 480, screenWidth = 640;
-SDL_Window* window = nullptr;
-SDL_GLContext context = nullptr;
-
-bool quit = false;
+// Application Instance
+App app(640, 480, "test");
 
 // VAO
 GLuint vertexArrayObject = 0;
@@ -112,41 +109,7 @@ void GetOpenGLVersionInfo() {
 }
 
 void InitializeProgram() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("SDL2 could not initialize video subsystem.");
-        exit(1);
-    }
-
-    // Set GL attributes
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-    // Create window
-    window = SDL_CreateWindow(
-        "horse-2.0",            // title name
-        SDL_WINDOWPOS_CENTERED, // x pos
-        SDL_WINDOWPOS_CENTERED, // y pos
-        screenWidth,            // width
-        screenHeight,           // height
-        SDL_WINDOW_OPENGL       // Unit32 flags
-    );
-
-    if (window == nullptr) {
-        printf("Could not create window: %s\n", SDL_GetError());
-        exit(1);
-    }
-
-    // Create context
-    context = SDL_GL_CreateContext(window);
-
-    if (context == nullptr) {
-        printf("Could not create context: %s\n", SDL_GetError());
-        exit(1);
-    }
+    app.Initialize();
 
     // Initialize the Glad Library
 
@@ -160,15 +123,15 @@ void InitializeProgram() {
 
 // SDL Input Handling
 void Input() {
-    static int mouseX = screenWidth / 2;
-    static int mouseY = screenHeight / 2;
+    static int mouseX = app.getWidth() / 2;
+    static int mouseY = app.getHeight() / 2;
 
     SDL_Event e;
 
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) {
             std::cout << "goodbye!!" << std::endl;
-            quit = true;
+            app.setActive(false);
         }
         else if (e.type == SDL_MOUSEMOTION) {
             mouseX += e.motion.xrel;
@@ -177,12 +140,12 @@ void Input() {
         }
     }
 
-   /* uOffset += .001f;
-    uOffset -= .001f;
-    uRotate += .01f;
-    uRotate -= .01f;*/
+    /* uOffset += .001f;
+     uOffset -= .001f;
+     uRotate += .01f;
+     uRotate -= .01f;*/
 
-    // Retrieve keyboard state
+     // Retrieve keyboard state
     const Uint8* state = SDL_GetKeyboardState(NULL);
 
     float speed = 0.001f;
@@ -273,7 +236,7 @@ void PreDraw() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-    glViewport(0, 0, screenWidth, screenHeight);        // creates a viewport starting left corner (0,0) 
+    glViewport(0, 0, app.getWidth(), app.getHeight());        // creates a viewport starting left corner (0,0) 
     glClearColor(0.2f, 0.3f, .3f, 1.0f);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -291,16 +254,16 @@ void PreDraw() {
     model = glm::rotate(model, glm::radians(uRotate), glm::vec3(0.0f, 1.0f, 0.0f));
     // Scale
     model = glm::scale(model, glm::vec3(uScale, uScale, uScale));
-    
+
     GLint u_ModelMatrixLocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_ModelMatrix");
     if (u_ModelMatrixLocation >= 0) {
         glUniformMatrix4fv(u_ModelMatrixLocation, 1, GL_FALSE, &model[0][0]);
-    } 
+    }
     else {
         std::cout << "could not find location of u_ModelMatrix. Mispelling?" << std::endl;
         exit(EXIT_FAILURE);
     }
-    
+
     // View Matrix
     glm::mat4 view = camera.GetViewMatrix();
     GLint u_viewLocataion = glGetUniformLocation(graphicsPipelineShaderProgram, "u_ViewMatrix");
@@ -312,7 +275,7 @@ void PreDraw() {
         exit(EXIT_FAILURE);
     }
 
-    glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)screenWidth/(float)screenHeight, 0.1f, 10.0f);
+    glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)app.getWidth() / (float)app.getHeight(), 0.1f, 10.0f);
     GLint u_ProjectionLocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_Projection");
     if (u_ProjectionLocation >= 0) {
         glUniformMatrix4fv(u_ProjectionLocation, 1, GL_FALSE, &perspective[0][0]);
@@ -336,12 +299,12 @@ void Draw() {
 void MainLoop() {
 
     // Set mouse in middle of window
-    SDL_WarpMouseInWindow(window, screenWidth/2, screenHeight/2);
+    SDL_WarpMouseInWindow(app.getWindow(), app.getWidth() / 2, app.getHeight() / 2);
 
     // Set mouse to move relatively within application
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
-    while (!quit) {
+    while (app.isActive()) {
         Input();
 
         PreDraw();
@@ -349,7 +312,7 @@ void MainLoop() {
         Draw();
 
         // Update the screen
-        SDL_GL_SwapWindow(window);
+        SDL_GL_SwapWindow(app.getWindow());
     }
 }
 
@@ -362,8 +325,7 @@ void CleanUp() {
     // Delete pipeline
     glDeleteProgram(graphicsPipelineShaderProgram);
 
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    app.Terminate();
 }
 
 #undef main // bug fix: potential overlap of main declaration in SDL??

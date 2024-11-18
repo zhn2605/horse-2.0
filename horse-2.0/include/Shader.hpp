@@ -6,10 +6,10 @@
 
 class Shader {
 public:
-    unsigned int shaderProgram;
+    GLuint shaderProgram;
 
     // Constructor
-    Shader(const char* vertexPath, const char* fragmentPath);
+    Shader(const std::string& vertexPath, const std::string& fragmentPath);
 
     // Shader operations
     void useProgram();
@@ -20,8 +20,11 @@ public:
     void setInt(const std::string& name, int value) const;
     void setFloat(const std::string& name, float value) const;
 
+    // Uniform getters
+    GLint getUniformLocation(const std::string& name);
+
 private:
-    void checkCompileErrors(unsigned int shader, std::string type);
+    void checkCompileErrors(GLuint shader, std::string type);
 };
 
 #endif

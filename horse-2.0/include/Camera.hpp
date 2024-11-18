@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 class Camera{
-	public:
+public:
 	
 	Camera();
 
@@ -19,12 +19,12 @@ class Camera{
 	void MoveUp(float speed);
 	void MoveDown(float speed);
 
-	private:
-		glm::vec3 eye;
-		glm::vec3 lookDirection;
-		glm::vec3 upVector;
+private:
+	glm::vec3 eye;
+	glm::vec3 lookDirection;
+	glm::vec3 upVector;
 
-		glm::vec2 oldMousePos;	// store old mouse pos
+	glm::vec2 oldMousePos;	// store old mouse pos
 };
 
 #endif
