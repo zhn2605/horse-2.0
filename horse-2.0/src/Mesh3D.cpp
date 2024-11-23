@@ -1,5 +1,6 @@
 #include "Mesh3D.hpp"
 
+// Setup functions
 Mesh3D::Mesh3D() {
 }
 
@@ -38,20 +39,16 @@ void Mesh3D::Initialize() {
     // Create EBO
     glGenBuffers(1, &m_indexBufferObject);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferObject);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicies.size() * sizeof(GLuint), m_indicies.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(GLuint), m_indices.data(), GL_STATIC_DRAW);
     
     glBindVertexArray(0);
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
 }
 
-void Mesh3D::Draw() {
-    // TODO: Implement this .??!?1
-}
-
 void Mesh3D::SpecifyVertices(std::vector<GLfloat> vertices, std::vector<GLuint> indicies) {
     m_vertices = vertices;
-    m_indicies = indicies;
+    m_indices = indicies;
 }
 
 void Mesh3D::CleanUp() {
@@ -67,4 +64,35 @@ void Mesh3D::CleanUp() {
         glDeleteBuffers(1, &m_indexBufferObject);
         m_indexBufferObject = 0;
     }
+}
+
+// Render functions
+void Mesh3D::Draw() {
+    glBindVertexArray(m_vertexArrayObject);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferObject);
+    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+
+// Setters
+void Mesh3D::SetPosition(const glm::vec3& pos) { 
+    m_position = pos;
+}
+void Mesh3D::SetRotation(float angle, const glm::vec3& axis) {
+    m_rotationAngle = angle;
+    m_rotationAxis = axis;
+}
+
+void Mesh3D::SetScale(const glm::vec3& scale) {
+    m_scale = scale;
+}
+
+// Getters
+glm::mat4 Mesh3D::GetModelMatrix() const {
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, m_position);
+    model = glm::rotate(model, m_rotationAngle, m_rotationAxis);
+    model = glm::scale(model, m_scale);
+    return model;
 }

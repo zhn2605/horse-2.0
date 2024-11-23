@@ -13,7 +13,7 @@ public:
 	Scene(GLuint shader);
 
 	Mesh3D* CreateObject(const MeshData& data);
-	void DrawAll();
+	void DrawAll(const glm::mat4& view, const glm::mat4& projection);
 	void CleanUpAll();
 
 private:
