@@ -14,24 +14,35 @@
 
 // Libraries
 #include "Shader.hpp"
+#include "Mesh3D.hpp"
 #include "Camera.hpp"
 #include "App.hpp"
+#include "MeshData.hpp"
 
 // Application Instance
-App app(640, 480, "test");
+App app;
+
+// Meshes
+Mesh3D object;
+
 
 // VAO
-GLuint vertexArrayObject = 0;
-// VBO
-GLuint vertexBufferObject = 0;      // position
-// Program Objects (for shaders)
-GLuint elementBufferObject = 0;
+//GLuint vertexArrayObject = 0;
+//// VBO
+//GLuint vertexBufferObject = 0;      // position
+//// Program Objects (for shaders)
+//GLuint elementBufferObject = 0;
 
 GLuint graphicsPipelineShaderProgram = 0;
 
+// Uniform values
 float uOffset = -2.0f;
 float uRotate = 0.0f;
 float uScale = 1.0f;
+
+// Delta time
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 
 Camera camera;
 
@@ -87,7 +98,7 @@ GLuint CreateShaderProgram(const std::string& vs, const std::string& fs) {
 
     // Validate program
     glValidateProgram(programObject);                           // checks whether the executable in proramObject can execute currently
-    // glDetachShader / delte shader
+    // glDetachShader / delete shader
     glDetachShader(programObject, vertexShader | fragmentShader);
     glDeleteShader(vertexShader | fragmentShader);
 
@@ -109,10 +120,13 @@ void GetOpenGLVersionInfo() {
 }
 
 void InitializeProgram() {
+    app.Create(640, 480, "test");
     app.Initialize();
 
-    // Initialize the Glad Library
+    // Enable Resize window
+    SDL_SetWindowResizable(app.getWindow(), SDL_TRUE);
 
+    // Initialize the Glad Library
     if (!gladLoadGLLoader(SDL_GL_GetProcAddress)) {
         std::cout << "Could not initialize glad.\n" << std::endl;
         exit(1);
@@ -123,32 +137,57 @@ void InitializeProgram() {
 
 // SDL Input Handling
 void Input() {
+
     static int mouseX = app.getWidth() / 2;
     static int mouseY = app.getHeight() / 2;
 
     SDL_Event e;
+    // Retrieve keyboard state
+    const Uint8* state = SDL_GetKeyboardState(NULL);
 
     while (SDL_PollEvent(&e) != 0) {
         if (e.type == SDL_QUIT) {
             std::cout << "goodbye!!" << std::endl;
             app.setActive(false);
         }
+        else if (e.type == SDL_WINDOWEVENT) {
+            if (e.window.event == SDL_WINDOWEVENT_RESIZED || e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+            
+                int newWidth = e.window.data1;
+                int newHeight = e.window.data2;
+
+                // Update OpenGL viewport
+                glViewport(0, 0, newWidth, newHeight);
+
+                // Update camera's aspect ratio
+                float aspect = static_cast<float>(newWidth) / static_cast<float>(newHeight);
+                camera.UpdateAspectRatio(aspect);
+
+                app.setWidth(newWidth);
+                app.setHeight(newHeight);
+            
+            }
+        }
         else if (e.type == SDL_MOUSEMOTION) {
             mouseX += e.motion.xrel;
             mouseY += e.motion.yrel;
             camera.MouseLook(mouseX, mouseY);
-        }
+        } 
     }
 
-    /* uOffset += .001f;
-     uOffset -= .001f;
-     uRotate += .01f;
-     uRotate -= .01f;*/
+     
+    // Screen Logic
+    Uint32 windowFlags = SDL_GetWindowFlags(app.getWindow());
+    if (state[SDL_SCANCODE_F]) {
+       SDL_SetWindowFullscreen(app.getWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
+    }
 
-     // Retrieve keyboard state
-    const Uint8* state = SDL_GetKeyboardState(NULL);
+    // Move Logic
+    // Speed
+    float multiplier = state[SDL_SCANCODE_LSHIFT] ? 3.0f : 1.0f;
+    float speed = 0.001f * deltaTime * multiplier;
 
-    float speed = 0.001f;
+
     if (state[SDL_SCANCODE_W]) {
         camera.MoveForward(speed);
     }
@@ -167,77 +206,86 @@ void Input() {
     if (state[SDL_SCANCODE_SPACE]) {
         camera.MoveUp(speed);
     }
+
+    if (state[SDL_SCANCODE_ESCAPE]) {
+        if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+        }
+        else {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+        }
+    }
 }
 
 void VertexSpecification() {
     const std::vector<GLfloat> vertices{  // Create dynamic array
         // Diamond
-        -0.25f, 0.0f, 0.0f,     // left
-        139.0f, 0.25f, 0.5f,     // color
+        // Front face
+        -0.25f, 0.25f, 0.25f,     // top-left
+        0.0f, 0.25f, 0.5f,     // color
 
-        0.0f, 0.25f, 0.0f,       // top
-        139.0f, 0.5f, 0.25f,      // color
+        0.25f, 0.25f, 0.25f,       // top-right
+        0.0f, 0.5f, 0.25f,      // color
 
-        0.25f, 0.0f, 0.0f,      // right
-        139.0f, 0.55f, 0.3f,     // color
+        0.25f, -0.25f, 0.25f,      // bot-right
+        0.0f, 0.55f, 0.3f,     // color
 
-        0.0f, -0.25f, 0.0f,     // bottom
-        139.0f, 0.15f, 0.15f,     // color
+        -0.25f, -0.25f, 0.25f,     // bot-left
+        0.0f, 0.15f, 0.15f,     // color
+
+       // Left face
+        -0.25f, 0.25f, -0.25f,     // top-left
+        0.0f, 0.25f, 0.5f,     // color
+
+        0.25f, 0.25f, -0.25f,       // top-right
+        0.0f, 0.5f, 0.25f,      // color
+
+        0.25f, -0.25f, -0.25f,      // bot-right
+        0.0f, 0.55f, 0.3f,     // color
+
+        -0.25f, -0.25f, -0.25f,     // bot-left
+        0.0f, 0.15f, 0.15f,     // color
     };
 
 
-    const std::vector<GLint> vertexIndicies{
+    const std::vector<GLuint> vertexIndicies{
+        // Front
         0, 1, 2,                // top triangle
         0, 3, 2,                // bot triangle
+
+        // Back
+        4, 5, 6,
+        4, 7, 6,
+
+        // Left
+        0, 4, 7,
+        0, 3, 7,
+
+        // Right
+        1, 5, 6,
+        1, 2, 6,
+
+        // Top
+        0, 4, 5,
+        0, 1, 5,
+
+        // Bot
+        3, 7, 6,
+        3, 2, 6
     };
 
-    // VAO Specification
-    glGenVertexArrays(1, &vertexArrayObject);
-    glBindVertexArray(vertexArrayObject);
-
-    // Create VBO
-    glGenBuffers(1, &vertexBufferObject);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-        0,
-        3, // xyz
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(GL_FLOAT) * 6,
-        (void*)0
-    );
-
-    // Enable color 
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(
-        1,
-        3, // rgb
-        GL_FLOAT,
-        GL_FALSE,
-        sizeof(GL_FLOAT) * 6,
-        (void*)(sizeof(GL_FLOAT) * 3)
-    );
-
-    // Create EBO
-    glGenBuffers(1, &elementBufferObject);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexIndicies.size() * sizeof(GLint), vertexIndicies.data(), GL_STATIC_DRAW);
-
-    glBindVertexArray(0);
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
+    object.SpecifyVertices(vertices, vertexIndicies);
+    object.Initialize();
 }
 
 // Open GL Drawing
 void PreDraw() {
-    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
     glViewport(0, 0, app.getWidth(), app.getHeight());        // creates a viewport starting left corner (0,0) 
-    glClearColor(0.2f, 0.3f, .3f, 1.0f);
+    //glClearColor(0.2f, 0.3f, .3f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -245,9 +293,10 @@ void PreDraw() {
 
     // Important: ORDER MATTERS (T, R, S for rotation around object. R, T, S for simulated rotation around us
     // Rotation test
-    uRotate -= .1f;
+    uRotate -= .025f;
     //std::cout << "uRotate: " << uRotate << std::endl;
 
+    
     // Translate
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, uOffset));
     // Rotate
@@ -274,8 +323,8 @@ void PreDraw() {
         std::cout << "could not find location of u_View. Mispelling?" << std::endl;
         exit(EXIT_FAILURE);
     }
-
-    glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)app.getWidth() / (float)app.getHeight(), 0.1f, 10.0f);
+    //glm::mat4 perspective = glm::perspective(glm::radians(45.0f), (float)app.getWidth() / (float)app.getHeight(), 0.1f, 10.0f);
+    glm::mat4 perspective = camera.GetProjectionMatrix();
     GLint u_ProjectionLocation = glGetUniformLocation(graphicsPipelineShaderProgram, "u_Projection");
     if (u_ProjectionLocation >= 0) {
         glUniformMatrix4fv(u_ProjectionLocation, 1, GL_FALSE, &perspective[0][0]);
@@ -288,16 +337,15 @@ void PreDraw() {
 
 void Draw() {
     // Sin diamond test
-    glBindVertexArray(vertexArrayObject);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBufferObject);
+    glBindVertexArray(object.getVAO());
+    glBindBuffer(GL_ARRAY_BUFFER, object.getVBO());
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, object.getIBO());
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
 void MainLoop() {
-
     // Set mouse in middle of window
     SDL_WarpMouseInWindow(app.getWindow(), app.getWidth() / 2, app.getHeight() / 2);
 
@@ -305,6 +353,14 @@ void MainLoop() {
     SDL_SetRelativeMouseMode(SDL_TRUE);
 
     while (app.isActive()) {
+        // Create delta time
+        float currentFrame = 1.0 * SDL_GetTicks();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        // Projection Matrix
+        camera.SetProjectionMatrix(glm::radians(45.0f), (float)app.getWidth() / (float)app.getHeight(), 0.1f, 10.0f);
+
         Input();
 
         PreDraw();
@@ -317,10 +373,8 @@ void MainLoop() {
 }
 
 void CleanUp() {
-
-    // Delete OpenGL objects
-    glDeleteBuffers(1, &vertexBufferObject);
-    glDeleteVertexArrays(1, &vertexArrayObject);
+    // Clean up object
+    object.CleanUp();
 
     // Delete pipeline
     glDeleteProgram(graphicsPipelineShaderProgram);

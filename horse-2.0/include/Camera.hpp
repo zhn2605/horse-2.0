@@ -9,7 +9,12 @@ public:
 	
 	Camera();
 
+	void SetProjectionMatrix(float fovy, float aspect, float near, float far);
+
+	glm::mat4 GetProjectionMatrix() const;
 	glm::mat4 GetViewMatrix() const;
+
+	void UpdateAspectRatio(float aspect);
 
 	void MouseLook(int mouseX, int mouseY);
 	void MoveForward(float speed);
@@ -20,11 +25,17 @@ public:
 	void MoveDown(float speed);
 
 private:
-	glm::vec3 eye;
-	glm::vec3 lookDirection;
-	glm::vec3 upVector;
+	glm::mat4 m_projectionMatrix;
 
-	glm::vec2 oldMousePos;	// store old mouse pos
+	glm::vec3 m_eye;
+	glm::vec3 m_lookDirection;
+	glm::vec3 m_upVector;
+
+	float m_fovy;
+	float m_near;
+	float m_far;
+
+	glm::vec2 m_oldMousePos;	// store old mouse pos
 };
 
 #endif

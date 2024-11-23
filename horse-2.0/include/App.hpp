@@ -7,13 +7,17 @@
 
 class App{
 public:
-	App(int width, int height, const char* windowTitle);
+	App();
+
+	void Create(int width, int height, const char* windowTitle);
 
 	void Initialize();
 	void Terminate();
 
 	// Setters
 	void setActive(bool value);
+	void setWidth(int value);
+	void setHeight(int value);
 
 	// Getters
 	int getWidth();

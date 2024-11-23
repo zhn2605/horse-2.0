@@ -1,7 +1,13 @@
 #include "App.hpp"
 #include <iostream>
 
-App::App(int width, int height, const char* windowTitle) {
+App::App() {
+    screenWidth = 0;
+    screenHeight = 0;
+    title = "test";
+}
+
+void App::Create(int width, int height, const char* windowTitle) {
 	// Assign settings
 	screenWidth = width;
 	screenHeight = height;
@@ -55,6 +61,14 @@ void App::Terminate() {
 // Setters
 void App::setActive(bool value) {
     active = value;
+}
+
+void App::setWidth(int value) {
+    screenWidth = value;
+}
+
+void App::setHeight(int value) {
+    screenHeight = value;
 }
 
 // Getters
