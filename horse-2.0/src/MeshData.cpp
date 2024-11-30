@@ -57,3 +57,31 @@ MeshData MeshData::CreateCube(float size) {
 
     return data;
 }
+
+MeshData MeshData::CreateWall(float length, float width, float height) {
+    MeshData data;
+
+    data.vertices = {
+        // Front face
+        -length/2, 0.0f,  0.0f,  0.85f, 0.85f, 0.91f,
+         length/2, 0.0f,  0.0f,  0.85f, 0.85f, 0.85f,
+         length/2, height,  0.0f,  0.85f, 0.85f, 0.91f,
+        -length/2, height,  0.0f,  0.85f, 0.85f, 0.85f,
+        // Back face
+        -length/2,  0.0f, -width,  0.85f, 0.85f, 0.91f,
+         length/2,  0.0f, -width,  0.85f, 0.85f, 0.85f,
+         length/2, height, -width,  0.85f, 0.85f, 0.91f,
+        -length/2, height, -width,  0.85f, 0.85f, 0.85f
+    }; 
+
+    data.indices = {
+        0, 1, 2,  0, 3, 2,  // Front
+        4, 5, 6,  4, 7, 6,  // Back
+        0, 4, 7,  0, 3, 7,  // Left
+        1, 5, 6,  1, 2, 6,  // Right
+        0, 4, 5,  0, 1, 5,  // Top
+        3, 7, 6,  3, 2, 6   // Bottom
+    };
+
+    return data;
+}

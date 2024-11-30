@@ -9,11 +9,6 @@ public:
 	
 	Camera();
 
-	void SetProjectionMatrix(float fovy, float aspect, float near, float far);
-
-	glm::mat4 GetProjectionMatrix() const;
-	glm::mat4 GetViewMatrix() const;
-
 	void UpdateAspectRatio(float aspect);
 
 	void MouseLook(int mouseX, int mouseY);
@@ -24,6 +19,14 @@ public:
 	void MoveUp(float speed);
 	void MoveDown(float speed);
 
+	void SetProjectionMatrix(float fovy, float aspect, float near, float far);
+	void SetFovy(float fovy);
+
+	float GetFovy();
+	glm::vec3 GetEye();
+	glm::mat4 GetProjectionMatrix() const;
+	glm::mat4 GetViewMatrix() const;
+
 private:
 	glm::mat4 m_projectionMatrix;
 
@@ -32,6 +35,7 @@ private:
 	glm::vec3 m_upVector;
 
 	float m_fovy;
+	float m_aspect;
 	float m_near;
 	float m_far;
 

@@ -7,25 +7,14 @@
 #include <iostream>
 
 Camera::Camera() {
-
     m_eye = glm::vec3(0.0f, 0.0f, 0.0f);
     m_lookDirection = glm::vec3(0.0f, 0.0f, -1.0f);
     m_upVector = glm::vec3(0.0f, 1.0f, 0.0f);
-}
 
-void Camera::SetProjectionMatrix(float fovy, float aspect, float near, float far) {
-    m_fovy = fovy;
-    m_near = near;
-    m_far = far;
-    m_projectionMatrix = glm::perspective(fovy, aspect, near, far);
-}
-
-glm::mat4 Camera::GetProjectionMatrix() const{
-    return m_projectionMatrix;
-}
-
-glm::mat4 Camera::GetViewMatrix() const {
-    return glm::lookAt(m_eye, m_eye + m_lookDirection, m_upVector);
+    m_fovy = 60.0f;
+    m_aspect = 1.0f;
+    m_near = 0.01f;
+    m_far = 50.0f;
 }
 
 void Camera::UpdateAspectRatio(float aspect) {
@@ -81,4 +70,31 @@ void Camera::MoveUp(float speed) {
 
 void Camera::MoveDown(float speed) {
     m_eye.y -= glm::normalize(m_upVector).y * speed;
+}
+
+// Setters
+void Camera::SetProjectionMatrix(float fovy, float aspect, float near, float far) {
+    m_fovy = fovy;
+    m_near = near;
+    m_aspect = aspect;
+    m_far = far;
+    m_projectionMatrix = glm::perspective(fovy, aspect, near, far);
+}
+
+void Camera::SetFovy(float fovy) {
+    m_fovy = fovy;
+    m_projectionMatrix = glm::perspective(glm::radians(fovy), m_aspect, m_near, m_far);
+}
+
+// Getters
+float Camera::GetFovy() { return m_fovy; }
+
+glm::vec3 Camera::GetEye() { return m_eye; }
+
+glm::mat4 Camera::GetProjectionMatrix() const {
+    return m_projectionMatrix;
+}
+
+glm::mat4 Camera::GetViewMatrix() const {
+    return glm::lookAt(m_eye, m_eye + m_lookDirection, m_upVector);
 }

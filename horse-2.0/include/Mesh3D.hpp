@@ -6,6 +6,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include <cctype>
 #include <string>
 
 class Mesh3D {
@@ -22,6 +23,7 @@ public:
     void SetPosition(const glm::vec3& pos);
     void SetRotation(float angle, const glm::vec3& axis);
     void SetScale(const glm::vec3& scale);
+    void Stretch(char axis, int scale);
 
     // Getters
     glm::mat4 GetModelMatrix() const;

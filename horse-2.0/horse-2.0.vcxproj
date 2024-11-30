@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\zziha\libs\SDL2-2.30.9\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\zziha\libs\SDL2-2.30.9\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\zziha\libs\SDL2-2.30.9\include;C:\Users\zziha\libs\SFML-2.6.2\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\zziha\libs\SDL2-2.30.9\lib\x64;C:\Users\zziha\libs\SFML-2.6.2\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\Users\zziha\libs\SDL2-2.30.9\include;$(IncludePath)</IncludePath>
@@ -112,13 +112,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\zziha\libs\SDL2-2.30.9\include;C:\Users\zziha\Projects\horse-2.0\horse-2.0\include;C:\Users\zziha\libs\glm-master;$(IncludePath)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\zziha\libs\SDL2-2.30.9\include;C:\Users\zziha\Projects\horse-2.0\horse-2.0\include;C:\Users\zziha\libs\glm-master;C:\Users\zziha\libs\SFML-2.6.2\include;$(IncludePath)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;SDL2.lib;SDL2main.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\zziha\libs\SDL2-2.30.9\lib\x64;$(LibraryPath)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;SDL2.lib;SDL2main.lib;sfml-audio.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\zziha\libs\SFML-2.6.2\lib;C:\Users\zziha\libs\SDL2-2.30.9\lib\x64;$(LibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

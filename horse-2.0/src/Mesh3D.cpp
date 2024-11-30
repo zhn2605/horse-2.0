@@ -87,6 +87,25 @@ void Mesh3D::SetRotation(float angle, const glm::vec3& axis) {
 void Mesh3D::SetScale(const glm::vec3& scale) {
     m_scale = scale;
 }
+void Mesh3D::Stretch(char axis, int scale) {
+    int startIndex;
+    int step = 6;
+    
+    if (axis == 'X' || axis == 'x') {
+        startIndex = 0;
+    }
+    else if (axis == 'Y' || axis == 'y') {
+        startIndex = 1;
+    } 
+    else if (axis == 'Z' || axis == 'z') {
+        startIndex = 2;
+    }
+
+    
+    for (int i = startIndex; i < m_vertices.size(); i += 3) {
+
+    }
+}
 
 // Getters
 glm::mat4 Mesh3D::GetModelMatrix() const {
