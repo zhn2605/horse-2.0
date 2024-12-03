@@ -90,6 +90,7 @@ void Camera::SetFovy(float fovy) {
 float Camera::GetFovy() { return m_fovy; }
 
 glm::vec3 Camera::GetEye() { return m_eye; }
+glm::vec3 Camera::GetLookDir() { return m_lookDirection; }
 
 glm::mat4 Camera::GetProjectionMatrix() const {
     return m_projectionMatrix;

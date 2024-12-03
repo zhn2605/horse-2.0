@@ -24,6 +24,7 @@ public:
 
 	float GetFovy();
 	glm::vec3 GetEye();
+	glm::vec3 GetLookDir();
 	glm::mat4 GetProjectionMatrix() const;
 	glm::mat4 GetViewMatrix() const;
 

@@ -8,7 +8,16 @@
 // Third Party Libraries
 #include <SDL.h>
 #include <glad/glad.h>
-#include <SFML/Audio.hpp>
+
+// Audio
+//#include <SFML/Audio.hpp>
+#include <irrKlang.h>
+using namespace irrklang;
+
+// Assets
+
+
+// GLM
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -36,7 +45,8 @@ Mesh3D object;
 //GLuint elementBufferObject = 0;
 
 // Audio
-sf::Music rainBG;
+ISoundEngine* SoundEngine = createIrrKlangDevice();
+//sf::Music rainBG;
 
 GLuint graphicsPipelineShaderProgram = 0;
 Scene scene(graphicsPipelineShaderProgram);
@@ -127,7 +137,7 @@ void GetOpenGLVersionInfo() {
 }
 
 void InitializeProgram() {
-    app.Create(640, 480, "test");
+    app.Create(640, 480, "myTamagotchi.exe");
     app.Initialize();
 
     // Enable Resize window
@@ -139,9 +149,22 @@ void InitializeProgram() {
         exit(1);
     }
 
+    /*
     if (!rainBG.openFromFile("./assets/audio/music/light-rain.wav")) {
         std::cout << "Could not load music!" << std::endl;
         exit(1);
+    }
+    */
+
+    if (!SoundEngine) {
+        std::cout << "Failed to create sound engine from irrKlang.\n" << std::endl;
+        exit(1);
+    } else {
+        ISound* rain = SoundEngine->play3D("./assets/audio/music/light-rain.wav", vec3df(0.0f, 0.0f, 0.0f), true, false, true);
+        rain->setMinDistance(1.0f);
+        rain->setMaxDistance(3.0f);
+
+        SoundEngine->setListenerPosition(vec3df(0, 0, 0), vec3df(0, 0, 0));
     }
 
     GetOpenGLVersionInfo();
@@ -194,14 +217,6 @@ void Input() {
 
     // Audio Test
     if (state[SDL_SCANCODE_0]) {
-        if (rainBG.getStatus() != sf::Music::Playing) {
-            rainBG.play();
-            rainBG.setVolume(50.0f);
-            rainBG.setLoop(true);
-        }
-        else {
-            rainBG.stop();
-        }
     }
 
     // Move Logic
@@ -272,7 +287,10 @@ void Draw() {
 }
 
 void MainLoop() {
-    sf::Listener::setPosition(camera.GetEye().x, camera.GetEye().y, camera.GetEye().z);
+    vec3df cameraPos = vec3df(camera.GetEye().x, camera.GetEye().y, camera.GetEye().z);
+    vec3df cameraLook = vec3df(camera.GetLookDir().x, camera.GetEye().y, camera.GetEye().z);
+
+    SoundEngine->setListenerPosition(cameraPos, cameraLook);
 
     // Set mouse in middle of window
     SDL_WarpMouseInWindow(app.getWindow(), app.getWidth() / 2, app.getHeight() / 2);
@@ -307,7 +325,7 @@ void CleanUp() {
 
     app.Terminate();
 
-    rainBG.stop();
+    SoundEngine->drop();
 }
 
 #undef main // bug fix: potential overlap of main declaration in SDL??
