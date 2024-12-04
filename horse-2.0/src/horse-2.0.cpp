@@ -8,14 +8,10 @@
 // Third Party Libraries
 #include <SDL.h>
 #include <glad/glad.h>
-
-// Audio
-//#include <SFML/Audio.hpp>
 #include <irrKlang.h>
 using namespace irrklang;
 
 // Assets
-
 
 // GLM
 #include <glm/glm.hpp>
@@ -33,20 +29,13 @@ using namespace irrklang;
 
 // Application Instance
 App app;
+Shader* graphicsShader;
 
 // Meshes
 Mesh3D object;
 
-// VAO
-//GLuint vertexArrayObject = 0;
-//// VBO
-//GLuint vertexBufferObject = 0;      // position
-//// Program Objects (for shaders)
-//GLuint elementBufferObject = 0;
-
 // Audio
 ISoundEngine* SoundEngine = createIrrKlangDevice();
-//sf::Music rainBG;
 
 GLuint graphicsPipelineShaderProgram = 0;
 Scene scene(graphicsPipelineShaderProgram);
@@ -62,71 +51,13 @@ float lastFrame = 0.0f;
 
 Camera camera;
 
-std::string LoadShaderAsString(const std::string& filename) {
-    std::string result = "";
-
-    std::string line = "";
-    std::ifstream file(filename.c_str());
-
-    if (file.is_open()) {
-        while (std::getline(file, line)) {
-            result += line + '\n';
-        }
-        file.close();
-    }
-    return result;
-}
-
-GLuint CompileShader(GLuint type, const std::string& source) {
-    GLuint shaderObject;
-
-    if (type == GL_VERTEX_SHADER) {
-        shaderObject = glCreateShader(GL_VERTEX_SHADER);
-    }
-    else if (type == GL_FRAGMENT_SHADER) {
-        shaderObject = glCreateShader(GL_FRAGMENT_SHADER);
-    }
-
-    const char* src = source.c_str();                           // gets string source code
-    glShaderSource(shaderObject, 1, &src, nullptr);             // copies shader source code string
-    glCompileShader(shaderObject);                              // compiles
-
-    // Error checking
-    int success;
-    char infoLog[512];
-    glGetShaderiv(shaderObject, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(shaderObject, 512, NULL, infoLog);
-        printf("Shader could not be compiled: %s\n", infoLog);
-    }
-
-    return shaderObject;
-}
-
-GLuint CreateShaderProgram(const std::string& vs, const std::string& fs) {
-    GLuint programObject = glCreateProgram();                   // shader-attachable program object, used to link shaders  
-    GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vs);
-    GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, fs);
-
-    glAttachShader(programObject, vertexShader);
-    glAttachShader(programObject, fragmentShader);
-    glLinkProgram(programObject);                               // link shader objects
-
-    // Validate program
-    glValidateProgram(programObject);                           // checks whether the executable in proramObject can execute currently
-    // glDetachShader / delete shader
-    glDetachShader(programObject, vertexShader | fragmentShader);
-    glDeleteShader(vertexShader | fragmentShader);
-
-    return programObject;
-}
-
 void CreateGraphicsPipeline() {
-    std::string vertexShaderSource = LoadShaderAsString("./shaders/vert.glsl");
-    std::string fragmentShaderSource = LoadShaderAsString("./shaders/frag.glsl");
+    std::string vertexShaderSource = "./shaders/vert.glsl";
+    std::string fragmentShaderSource = "./shaders/frag.glsl";
 
-    graphicsPipelineShaderProgram = CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
-    scene.SetShaderProgram(graphicsPipelineShaderProgram);
+    graphicsShader = new Shader(vertexShaderSource, fragmentShaderSource);
+    graphicsShader->useProgram();
+    scene.SetShaderProgram(graphicsShader->shaderProgram);
 }
 
 void GetOpenGLVersionInfo() {
@@ -149,22 +80,15 @@ void InitializeProgram() {
         exit(1);
     }
 
-    /*
-    if (!rainBG.openFromFile("./assets/audio/music/light-rain.wav")) {
-        std::cout << "Could not load music!" << std::endl;
-        exit(1);
-    }
-    */
-
     if (!SoundEngine) {
         std::cout << "Failed to create sound engine from irrKlang.\n" << std::endl;
         exit(1);
     } else {
-        ISound* rain = SoundEngine->play3D("./assets/audio/music/light-rain.wav", vec3df(0.0f, 0.0f, 0.0f), true, false, true);
+        ISound* rain = SoundEngine->play3D("./assets/audio/music/heavy-rain.wav", vec3df(0.0f, 0.0f, 0.0f), true, false, true);
         rain->setMinDistance(1.0f);
         rain->setMaxDistance(3.0f);
 
-        SoundEngine->setListenerPosition(vec3df(0, 0, 0), vec3df(0, 0, 0));
+        SoundEngine->setListenerPosition(vec3df(0, 0, 0), vec3df(0, 0, -1));
     }
 
     GetOpenGLVersionInfo();
@@ -287,11 +211,6 @@ void Draw() {
 }
 
 void MainLoop() {
-    vec3df cameraPos = vec3df(camera.GetEye().x, camera.GetEye().y, camera.GetEye().z);
-    vec3df cameraLook = vec3df(camera.GetLookDir().x, camera.GetEye().y, camera.GetEye().z);
-
-    SoundEngine->setListenerPosition(cameraPos, cameraLook);
-
     // Set mouse in middle of window
     SDL_WarpMouseInWindow(app.getWindow(), app.getWidth() / 2, app.getHeight() / 2);
 
@@ -306,6 +225,12 @@ void MainLoop() {
 
         // Projection Matrix
         camera.SetProjectionMatrix(glm::radians(60.0f), (float)app.getWidth() / (float)app.getHeight(), 0.1f, 50.0f);
+
+        // Set listener position
+        vec3df cameraPos = vec3df(camera.GetEye().x, camera.GetEye().y, camera.GetEye().z);
+        vec3df cameraLook = vec3df(camera.GetLookDir().x, camera.GetEye().y, camera.GetEye().z);
+
+        SoundEngine->setListenerPosition(cameraPos, cameraLook);
 
         Input();
 
@@ -323,9 +248,11 @@ void CleanUp() {
     // Delete pipeline
     glDeleteProgram(graphicsPipelineShaderProgram);
 
-    app.Terminate();
-
+    // Remove sound engine
     SoundEngine->drop();
+
+    // Terminate App
+    app.Terminate();
 }
 
 #undef main // bug fix: potential overlap of main declaration in SDL??
