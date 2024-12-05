@@ -63,10 +63,12 @@ void Mesh3D::SpecifyVertices(std::vector<GLfloat> vertices, std::vector<GLuint> 
 }
 
 // Render functions
-void Mesh3D::Draw() {
+void Mesh3D::Draw(Shader* shader) {
     if (m_texture) {
+        glActiveTexture(GL_TEXTURE0);
         m_texture->Bind();
-
+        
+        shader->setInt("textureSampler", 0);
     }
 
     glBindVertexArray(m_vertexArrayObject);
@@ -74,6 +76,10 @@ void Mesh3D::Draw() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferObject);
     glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    if (m_texture) {
+        m_texture->Unbind();
+    }
 }
 
 void Mesh3D::CleanUp() {

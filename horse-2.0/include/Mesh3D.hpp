@@ -10,6 +10,7 @@
 #include <string>
 
 #include "Texture.hpp"
+#include "Shader.hpp"
 
 class Mesh3D {
 public:
@@ -17,13 +18,13 @@ public:
 
     void SpecifyVertices(std::vector<GLfloat> vertices, std::vector<GLuint> indicies);
     void Initialize();
-    void SetTexture(Texture* texture);
-    void Draw();
+    void Draw(Shader* shader);
     void CleanUp();
 
     void UpdateBuffers();
 
     // Setters
+    void SetTexture(Texture* texture);
     void SetPosition(const glm::vec3& pos);
     void SetRotation(float angle, const glm::vec3& axis);
     void SetScale(const glm::vec3& scale);

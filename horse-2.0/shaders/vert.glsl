@@ -13,7 +13,7 @@ uniform mat4 u_Projection;
 
 void main() {
 	v_vertexColors = vertexColors;
-	// v_texCoords = texCoords;
+	v_texCoords = texCoords;
 
 	// MVP Matrix
 	vec4 newPosition = u_Projection * u_ViewMatrix * u_ModelMatrix * vec4(position, 1.0f);

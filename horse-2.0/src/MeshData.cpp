@@ -37,42 +37,61 @@ MeshData MeshData::CreateCube(float size) {
 
     data.vertices = {
         // Front face (position, color, texcoords)
-        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-         halfSize,  halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-         halfSize, -halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,      // Top-left
+         halfSize,  halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,      // Top-right
+         halfSize, -halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,      // Bottom-right
+        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f,      // Bottom-left
 
         // Back face
-        -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        -halfSize, -halfSize, -halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,      // Top-left
+         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,      // Top-right
+         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,      // Bottom-right
+        -halfSize, -halfSize, -halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // Bottom-left
+
+        // Left side face
+        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,      // Top-left
+        -halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,      // Top-right
+        -halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,      // Bottom-right
+        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // Bottom-left
+
+        // Right side face
+         halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,      // Top-left
+         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,      // Top-right
+         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,      // Bottom-right
+         halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f,      // Bottom-left
+
+         // Top face
+         -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+          halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+          halfSize,  halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+         -halfSize,  halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+
+         // Bottom face
+         -halfSize, -halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+          halfSize, -halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+          halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+         -halfSize, -halfSize, -halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f
     };
 
     data.indices = {
         // Front face
         0, 1, 2,
         0, 2, 3,
-
         // Back face
-        4, 6, 5,
-        4, 7, 6,
-
+        4, 5, 6,
+        4, 6, 7,
         // Left face
-        0, 7, 4,
-        0, 3, 7,
-
+        8, 9, 10,
+        8, 10, 11,
         // Right face
-        1, 5, 6,
-        1, 6, 2,
-
+        12, 13, 14,
+        12, 14, 15,
         // Top face
-        0, 4, 5,
-        0, 5, 1,
-
+        16, 17, 18,
+        16, 18, 19,
         // Bottom face
-        3, 6, 7,
-        3, 2, 6
+        20, 21, 22,
+        20, 22, 23
     };
 
     return data;

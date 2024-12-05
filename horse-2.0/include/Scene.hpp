@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "MeshData.hpp"
 #include "Mesh3D.hpp"
+#include "Shader.hpp"
 
 class Scene{
 public:
@@ -16,7 +17,7 @@ public:
 	Mesh3D* CreateObject(const std::string name, const MeshData& data);
 	Mesh3D* GetObject(const std::string name);
 	void PrepareDraw(int width, int height);
-	void DrawAll(const glm::mat4& view, const glm::mat4& projection);
+	void DrawAll(const glm::mat4& view, const glm::mat4& projection, Shader* shader);
 	void UpdateAll();
 	void CleanUpAll();
 

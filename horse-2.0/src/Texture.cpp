@@ -9,8 +9,6 @@ Texture::Texture() {
 void Texture::LoadTexture(const std::string& filepath) {
     // Load image data
     unsigned char* data = stbi_load(filepath.c_str(), &m_width, &m_height, &m_channels, 0);
-    
-    stbi_image_free(data);
 
     glGenTextures(1, &m_textureID);
     glBindTexture(GL_TEXTURE_2D, m_textureID);

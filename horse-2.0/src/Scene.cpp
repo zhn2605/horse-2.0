@@ -44,7 +44,7 @@ void Scene::PrepareDraw(int width, int height) {
 
 }
 
-void Scene::DrawAll(const glm::mat4& view, const glm::mat4& projection) {
+void Scene::DrawAll(const glm::mat4& view, const glm::mat4& projection, Shader* shader) {
     glUseProgram(m_shaderProgram);
 
     // Set view and projection matrices
@@ -60,7 +60,7 @@ void Scene::DrawAll(const glm::mat4& view, const glm::mat4& projection) {
             glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &model[0][0]);
         }
         // Draw object
-        obj->Draw();
+        obj->Draw(shader);
     }
 }
 

@@ -26,11 +26,12 @@ using namespace irrklang;
 #include "App.hpp"
 #include "MeshData.hpp"
 #include "Scene.hpp"
+#include "Texture.hpp"
 
 // Application Instance
 App app;
 Shader* graphicsShader;
-
+Texture* boxTexture = new Texture();
 // Meshes
 Mesh3D object;
 
@@ -210,6 +211,8 @@ void InitializeObjects() {
     Mesh3D* testCube = scene.CreateObject("testCube", MeshData::CreateCube());
     testCube->SetPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     testCube->SetColor(colorTest);
+    boxTexture->LoadTexture("./assets/textures/container.jpg");
+    testCube->SetTexture(boxTexture);
 
     /*for (float i = -20.0f; i < 20.0f; i += 1.0f) {
         for (float j = -20.0f; j < 20.0f; j += 1.0f) {
@@ -222,7 +225,7 @@ void InitializeObjects() {
 
 void Draw() {
     scene.PrepareDraw(app.getWidth(), app.getHeight());
-    scene.DrawAll(camera.GetViewMatrix(), camera.GetProjectionMatrix());
+    scene.DrawAll(camera.GetViewMatrix(), camera.GetProjectionMatrix(), graphicsShader);
     scene.UpdateAll();
 }
 
