@@ -37,10 +37,10 @@ MeshData MeshData::CreateCube(float size) {
 
     data.vertices = {
         // Front face (position, color, texcoords)
-        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,      // Top-left
-         halfSize,  halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,      // Top-right
-         halfSize, -halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,      // Bottom-right
-        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f,      // Bottom-left
+        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,      // Top-left
+         halfSize,  halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,      // Top-right
+         halfSize, -halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,      // Bottom-right
+        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // Bottom-left
 
         // Back face
         -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,      // Top-left
@@ -55,10 +55,10 @@ MeshData MeshData::CreateCube(float size) {
         -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // Bottom-left
 
         // Right side face
-         halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,      // Top-left
-         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,      // Top-right
-         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,      // Bottom-right
-         halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f,      // Bottom-left
+         halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,      // Top-left
+         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,      // Top-right
+         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,      // Bottom-right
+         halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // Bottom-left
 
          // Top face
          -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,

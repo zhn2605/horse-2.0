@@ -32,6 +32,7 @@ using namespace irrklang;
 App app;
 Shader* graphicsShader;
 Texture* boxTexture = new Texture();
+Texture* kadenTexture = new Texture();
 // Meshes
 Mesh3D object;
 
@@ -211,8 +212,9 @@ void InitializeObjects() {
     Mesh3D* testCube = scene.CreateObject("testCube", MeshData::CreateCube());
     testCube->SetPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     testCube->SetColor(colorTest);
+    kadenTexture->LoadTexture("./assets/textures/kaden.jpg");
     boxTexture->LoadTexture("./assets/textures/container.jpg");
-    testCube->SetTexture(boxTexture);
+    testCube->SetTexture(kadenTexture);
 
     /*for (float i = -20.0f; i < 20.0f; i += 1.0f) {
         for (float j = -20.0f; j < 20.0f; j += 1.0f) {
