@@ -147,6 +147,8 @@
     <ClCompile Include="src\MeshData.cpp" />
     <ClCompile Include="src\Scene.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\stb_image.cpp" />
+    <ClCompile Include="src\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\App.hpp" />
@@ -155,6 +157,7 @@
     <ClInclude Include="include\MeshData.hpp" />
     <ClInclude Include="include\Scene.hpp" />
     <ClInclude Include="include\Shader.hpp" />
+    <ClInclude Include="include\Texture.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

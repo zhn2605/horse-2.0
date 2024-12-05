@@ -52,7 +52,6 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
 }
 
 
-
 void Shader::useProgram() {
     glUseProgram(shaderProgram);
 }

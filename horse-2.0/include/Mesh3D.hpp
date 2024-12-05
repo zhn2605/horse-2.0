@@ -9,28 +9,38 @@
 #include <cctype>
 #include <string>
 
+#include "Texture.hpp"
+
 class Mesh3D {
 public:
     Mesh3D();
 
     void SpecifyVertices(std::vector<GLfloat> vertices, std::vector<GLuint> indicies);
     void Initialize();
+    void SetTexture(Texture* texture);
     void Draw();
     void CleanUp();
-    void PrepareDraw();
+
+    void UpdateBuffers();
 
     // Setters
     void SetPosition(const glm::vec3& pos);
     void SetRotation(float angle, const glm::vec3& axis);
     void SetScale(const glm::vec3& scale);
+    void SetColor(const glm::vec3& color);
+    void SetName(const std::string name);
     void Stretch(char axis, int scale);
 
     // Getters
+    std::string GetName() const { return m_name; }
+
     glm::mat4 GetModelMatrix() const;
     GLuint getVAO() const { return m_vertexArrayObject; }
     GLuint getVBO() const { return m_vertexBufferObject; }
     GLuint getIBO() const { return m_indexBufferObject; }
 private:
+    Texture* m_texture = nullptr;
+
     std::vector<GLfloat> m_vertices;
     std::vector<GLuint> m_indices;
     GLuint m_vertexArrayObject = 0;
@@ -38,6 +48,7 @@ private:
     GLuint m_indexBufferObject = 0;
 
     // Object Data
+    std::string m_name = "object";
     glm::vec3 m_position{ 0.0f };
     float m_rotationAngle{ 0.0f };
     glm::vec3 m_rotationAxis{ 0.0f, 1.0f, 0.0f };

@@ -40,6 +40,8 @@ ISoundEngine* SoundEngine = createIrrKlangDevice();
 GLuint graphicsPipelineShaderProgram = 0;
 Scene scene(graphicsPipelineShaderProgram);
 
+glm::vec3 colorTest = glm::vec3(1.0f, 1.0f, 1.0f);
+
 // Uniform values
 float uOffset = -2.0f;
 float uRotate = 0.0f;
@@ -139,9 +141,22 @@ void Input() {
        SDL_SetWindowFullscreen(app.getWindow(), SDL_WINDOW_FULLSCREEN_DESKTOP);
     }
 
-    // Audio Test
-    if (state[SDL_SCANCODE_0]) {
+    // Cube test
+    if (state[SDL_SCANCODE_1]) {
+        scene.GetObject("testCube")->SetColor(glm::vec3(1.0f, 0.0f, 0.0f));
     }
+
+    if (state[SDL_SCANCODE_2]) {
+        scene.GetObject("testCube")->SetColor(glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+        
+    if (state[SDL_SCANCODE_3]) {
+        scene.GetObject("testCube")->SetColor(glm::vec3(0.0f, 0.0f, 1.0f));
+    }
+
+    /*if (state[SDL_SCANCODE_0]) {
+        scene.GetObject("testCube")->SetColor(glm::vec3(.1f * sin(deltaTime), .1f * cos(deltaTime), .1f * sin(deltaTime)));
+    }*/
 
     // Move Logic
     // Speed
@@ -161,7 +176,7 @@ void Input() {
         camera.SetFovy(base_fov);
     }
 
-    float speed = 0.001f * deltaTime * multiplier;
+    float speed = 0.01f * deltaTime * multiplier;
     if (state[SDL_SCANCODE_W]) {
         camera.MoveForward(speed);
     }
@@ -192,9 +207,9 @@ void Input() {
 }
 
 void InitializeObjects() {
-    // Construct house
-    Mesh3D* frontWall = scene.CreateObject(MeshData::CreateWall(1.0f, 0.05f, 2.0f));
-    frontWall->SetPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    Mesh3D* testCube = scene.CreateObject("testCube", MeshData::CreateCube());
+    testCube->SetPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    testCube->SetColor(colorTest);
 
     /*for (float i = -20.0f; i < 20.0f; i += 1.0f) {
         for (float j = -20.0f; j < 20.0f; j += 1.0f) {
@@ -208,6 +223,7 @@ void InitializeObjects() {
 void Draw() {
     scene.PrepareDraw(app.getWidth(), app.getHeight());
     scene.DrawAll(camera.GetViewMatrix(), camera.GetProjectionMatrix());
+    scene.UpdateAll();
 }
 
 void MainLoop() {

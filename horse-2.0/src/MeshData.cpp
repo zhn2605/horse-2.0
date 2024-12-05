@@ -1,5 +1,6 @@
 #include "MeshData.hpp"
 
+/*
 MeshData MeshData::CreateDiamond(float size) {
     float halfSize = size / 2.0f;
     MeshData data;
@@ -28,36 +29,56 @@ MeshData MeshData::CreateDiamond(float size) {
 
     return data;
 }
+*/
 
 MeshData MeshData::CreateCube(float size) {
     float halfSize = size / 2.0f;
     MeshData data;
 
     data.vertices = {
-        // Front face
-        -halfSize,  halfSize,  halfSize,  0.0f, 0.25f, 0.5f,
-         halfSize,  halfSize,  halfSize,  0.0f, 0.5f, 0.25f,
-         halfSize, -halfSize,  halfSize,  0.0f, 0.55f, 0.3f,
-        -halfSize, -halfSize,  halfSize,  0.0f, 0.15f, 0.15f,
+        // Front face (position, color, texcoords)
+        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+         halfSize,  halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+         halfSize, -halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+
         // Back face
-        -halfSize,  halfSize, -halfSize,  0.0f, 0.25f, 0.5f,
-         halfSize,  halfSize, -halfSize,  0.0f, 0.5f, 0.25f,
-         halfSize, -halfSize, -halfSize,  0.0f, 0.55f, 0.3f,
-        -halfSize, -halfSize, -halfSize,  0.0f, 0.15f, 0.15f
+        -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        -halfSize, -halfSize, -halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
     };
 
     data.indices = {
-        0, 1, 2,  0, 3, 2,  // Front
-        4, 5, 6,  4, 7, 6,  // Back
-        0, 4, 7,  0, 3, 7,  // Left
-        1, 5, 6,  1, 2, 6,  // Right
-        0, 4, 5,  0, 1, 5,  // Top
-        3, 7, 6,  3, 2, 6   // Bottom
+        // Front face
+        0, 1, 2,
+        0, 2, 3,
+
+        // Back face
+        4, 6, 5,
+        4, 7, 6,
+
+        // Left face
+        0, 7, 4,
+        0, 3, 7,
+
+        // Right face
+        1, 5, 6,
+        1, 6, 2,
+
+        // Top face
+        0, 4, 5,
+        0, 5, 1,
+
+        // Bottom face
+        3, 6, 7,
+        3, 2, 6
     };
 
     return data;
 }
 
+/*
 MeshData MeshData::CreateWall(float length, float width, float height) {
     MeshData data;
 
@@ -85,3 +106,4 @@ MeshData MeshData::CreateWall(float length, float width, float height) {
 
     return data;
 }
+*/

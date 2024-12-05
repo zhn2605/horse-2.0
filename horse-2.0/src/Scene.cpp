@@ -8,14 +8,26 @@ void Scene::SetShaderProgram(GLuint shader) {
     m_shaderProgram = shader;
 }
 
-Mesh3D* Scene::CreateObject(const MeshData& data) {
+Mesh3D* Scene::CreateObject(const std::string name, const MeshData& data) {
     auto mesh = std::make_unique<Mesh3D>();
     mesh->SpecifyVertices(data.vertices, data.indices);
     mesh->Initialize();
+    mesh->SetName(name);
 
     Mesh3D* ptr = mesh.get();
     m_objects.push_back(std::move(mesh));
     return ptr;
+}
+
+Mesh3D* Scene::GetObject(const std::string name) {
+    for (const auto& obj : m_objects) {
+        if (obj->GetName() == name) {
+            return obj.get();
+        }
+    }
+    
+    std::cerr << "Object not found in scene" << std::endl;
+    return nullptr;
 }
 
 void Scene::PrepareDraw(int width, int height) {
@@ -49,6 +61,12 @@ void Scene::DrawAll(const glm::mat4& view, const glm::mat4& projection) {
         }
         // Draw object
         obj->Draw();
+    }
+}
+
+void Scene::UpdateAll() {
+    for (auto& obj : m_objects) {
+        obj->UpdateBuffers();
     }
 }
 
