@@ -30,10 +30,14 @@ public:
     void SetScale(const glm::vec3& scale);
     void SetColor(const glm::vec3& color);
     void SetName(const std::string name);
+    void SetLightEmitter(bool isLightEmitter);
     void Stretch(char axis, int scale);
 
     // Getters
     std::string GetName() const { return m_name; }
+    glm::vec3 GetPosition() const { return m_position; }
+    glm::vec3 GetColor() const { return m_color; }
+    bool IsLightEmitter() const { return m_isLightEmitter; }
 
     glm::mat4 GetModelMatrix() const;
     GLuint getVAO() const { return m_vertexArrayObject; }
@@ -51,9 +55,11 @@ private:
     // Object Data
     std::string m_name = "object";
     glm::vec3 m_position{ 0.0f };
+    glm::vec3 m_color{ 1.0f };
     float m_rotationAngle{ 0.0f };
     glm::vec3 m_rotationAxis{ 0.0f, 1.0f, 0.0f };
     glm::vec3 m_scale{ 1.0f };
+    bool m_isLightEmitter = false;
 };
 
 #endif

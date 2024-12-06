@@ -36,41 +36,36 @@ MeshData MeshData::CreateCube(float size) {
     MeshData data;
 
     data.vertices = {
-        // Front face (position, color, texcoords)
-        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,      // Top-left
-         halfSize,  halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,      // Top-right
-         halfSize, -halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,      // Bottom-right
-        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // Bottom-left
-
+        // Front face (position, color, texcoords, normal)
+        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,     // Top-left
+         halfSize,  halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 1.0f,     // Top-right
+         halfSize, -halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,     // Bottom-right
+        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 1.0f,     // Bottom-left
         // Back face
-        -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,      // Top-left
-         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,      // Top-right
-         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,      // Bottom-right
-        -halfSize, -halfSize, -halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // Bottom-left
-
+        -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f,    // Top-left
+         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  0.0f, 0.0f, -1.0f,    // Top-right
+         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,  0.0f, 0.0f, -1.0f,    // Bottom-right
+        -halfSize, -halfSize, -halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 0.0f, -1.0f,    // Bottom-left
         // Left side face
-        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,      // Top-left
-        -halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,      // Top-right
-        -halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,      // Bottom-right
-        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // Bottom-left
-
+        -halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,     // Top-left
+        -halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,     // Top-right
+        -halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,     // Bottom-right
+        -halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,     // Bottom-left
         // Right side face
-         halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,      // Top-left
-         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,      // Top-right
-         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,      // Bottom-right
-         halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,      // Bottom-left
-
-         // Top face
-         -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-          halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
-          halfSize,  halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-         -halfSize,  halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-
-         // Bottom face
-         -halfSize, -halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-          halfSize, -halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-          halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-         -halfSize, -halfSize, -halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f
+         halfSize,  halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,     // Top-left
+         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  1.0f, 0.0f, 0.0f,     // Top-right
+         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,     // Bottom-right
+         halfSize, -halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,     // Bottom-left
+        // Top face
+        -halfSize,  halfSize, -halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+         halfSize,  halfSize, -halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,  0.0f, 1.0f, 0.0f,
+         halfSize,  halfSize,  halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+        -halfSize,  halfSize,  halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+        // Bottom face
+        -halfSize, -halfSize,  halfSize,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  0.0f, -1.0f, 0.0f,
+         halfSize, -halfSize,  halfSize,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,  0.0f, -1.0f, 0.0f,
+         halfSize, -halfSize, -halfSize,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  0.0f, -1.0f, 0.0f,
+        -halfSize, -halfSize, -halfSize,  1.0f, 1.0f, 0.0f, 0.0f, 0.0f,  0.0f, -1.0f, 0.0f
     };
 
     data.indices = {

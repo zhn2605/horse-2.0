@@ -21,7 +21,7 @@ void Mesh3D::Initialize() {
         3, // xyz
         GL_FLOAT,
         GL_FALSE,
-        sizeof(GL_FLOAT) * 8,  // stride is 8 because [x, y, z, r, g, b, textx, texty]
+        sizeof(GL_FLOAT) * 11,  // stride is 8 because [x, y, z, r, g, b, textx, texty]
         (void*)0
     );
 
@@ -32,18 +32,30 @@ void Mesh3D::Initialize() {
         3, // rgb
         GL_FLOAT,
         GL_FALSE,
-        sizeof(GL_FLOAT) * 8,
+        sizeof(GL_FLOAT) * 11,
         (void*)(sizeof(GL_FLOAT) * 3)
     );
 
+    // Enable textures
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(
         2,
-        2, // x, y, texture coords
+        2, // u, v, texture coords
         GL_FLOAT,
         GL_FALSE,
-        sizeof(GL_FLOAT) * 8,
+        sizeof(GL_FLOAT) * 11,
         (void*)(sizeof(GL_FLOAT) * 6)
+    );
+
+    // Enable norm attrib
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(
+        3,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(GL_FLOAT) * 11,
+        (void*)(sizeof(GL_FLOAT) * 8)
     );
 
     // Create EBO
@@ -55,6 +67,7 @@ void Mesh3D::Initialize() {
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(3);
 }
 
 void Mesh3D::SpecifyVertices(std::vector<GLfloat> vertices, std::vector<GLuint> indicies) {
@@ -64,12 +77,15 @@ void Mesh3D::SpecifyVertices(std::vector<GLfloat> vertices, std::vector<GLuint> 
 
 // Render functions
 void Mesh3D::Draw(Shader* shader) {
-    if (m_texture) {
+    bool useTexture = (m_texture != nullptr);
+    shader->setBool("u_useTexture", useTexture);
+
+    if (useTexture) {
         glActiveTexture(GL_TEXTURE0);
         m_texture->Bind();
         
         shader->setInt("textureSampler", 0);
-    }
+    } 
 
     glBindVertexArray(m_vertexArrayObject);
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
@@ -77,7 +93,7 @@ void Mesh3D::Draw(Shader* shader) {
     glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 
-    if (m_texture) {
+    if (useTexture) {
         m_texture->Unbind();
     }
 }
@@ -125,15 +141,21 @@ void Mesh3D::SetScale(const glm::vec3& scale) {
 }
 
 void Mesh3D::SetColor(const glm::vec3& rgb) {
-    for (int i = 3; i < m_vertices.size(); i+=8) {
-        m_vertices[i] = rgb.r;
-        m_vertices[i + 1] = rgb.g;
-        m_vertices[i + 2] = rgb.b;
+    m_color = rgb;
+    
+    for (int i = 3; i < m_vertices.size(); i+=11) {
+        m_vertices[i] = m_color.r;
+        m_vertices[i + 1] = m_color.g;
+        m_vertices[i + 2] = m_color.b;
     }
 }
 
 void Mesh3D::SetName(const std::string name) {
     m_name = name;
+}
+
+void Mesh3D::SetLightEmitter(bool isLightEmitter) {
+    m_isLightEmitter = isLightEmitter;
 }
 
 //void Mesh3D::Stretch(char axis, int scale) {

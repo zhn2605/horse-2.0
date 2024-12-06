@@ -44,7 +44,7 @@ void Scene::PrepareDraw(int width, int height) {
 
 }
 
-void Scene::DrawAll(const glm::mat4& view, const glm::mat4& projection, Shader* shader) {
+void Scene::DrawObjects(const glm::mat4& view, const glm::mat4& projection, Shader* shader) {
     glUseProgram(m_shaderProgram);
 
     // Set view and projection matrices
@@ -53,14 +53,34 @@ void Scene::DrawAll(const glm::mat4& view, const glm::mat4& projection, Shader* 
 
     if (viewLocation >= 0) glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
     if (projLocation >= 0) glUniformMatrix4fv(projLocation, 1, GL_FALSE, &projection[0][0]);
-    for (const auto& obj : m_objects) {  
+    for (const auto& obj : m_objects) {
         GLint modelLocation = glGetUniformLocation(m_shaderProgram, "u_ModelMatrix");
         if (modelLocation >= 0) {
             glm::mat4 model = obj->GetModelMatrix();
             glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &model[0][0]);
         }
         // Draw object
-        obj->Draw(shader);
+        if (obj->IsLightEmitter() == false) {
+            obj->Draw(shader);
+        }
+    }
+}
+
+void Scene::DrawLightSources(const glm::mat4& view, const glm::mat4& projection, Shader* lightShader) {
+    lightShader->useProgram();
+    lightShader->setUniformMat4("u_ViewMatrix", view);
+    lightShader->setUniformMat4("u_Projection", projection);
+
+    for (auto& obj : m_objects) {
+        if (obj->IsLightEmitter()) {
+            glm::mat4 model = obj->GetModelMatrix();
+            lightShader->setUniformMat4("u_ModelMatrix", model);
+
+            glm::vec3 lightColor = obj->GetColor();
+            lightShader->setUniformVec3("u_LightColor", lightColor);
+
+            obj->Draw(lightShader);
+        }
     }
 }
 

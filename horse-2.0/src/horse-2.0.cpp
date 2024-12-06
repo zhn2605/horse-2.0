@@ -31,6 +31,8 @@ using namespace irrklang;
 // Application Instance
 App app;
 Shader* graphicsShader;
+Shader* lightingShader;
+
 Texture* boxTexture = new Texture();
 Texture* kadenTexture = new Texture();
 // Meshes
@@ -58,8 +60,11 @@ Camera camera;
 void CreateGraphicsPipeline() {
     std::string vertexShaderSource = "./shaders/vert.glsl";
     std::string fragmentShaderSource = "./shaders/frag.glsl";
+    std::string lightFragShaderSource = "./shaders/lightFrag.glsl";
+    std::string lightVertShaderSource = "./shaders/lightVert.glsl";
 
     graphicsShader = new Shader(vertexShaderSource, fragmentShaderSource);
+    lightingShader = new Shader(lightVertShaderSource, lightFragShaderSource);
     graphicsShader->useProgram();
     scene.SetShaderProgram(graphicsShader->shaderProgram);
 }
@@ -88,7 +93,8 @@ void InitializeProgram() {
         std::cout << "Failed to create sound engine from irrKlang.\n" << std::endl;
         exit(1);
     } else {
-        ISound* rain = SoundEngine->play3D("./assets/audio/music/heavy-rain.wav", vec3df(0.0f, 0.0f, 0.0f), true, false, true);
+        ISound* rain = SoundEngine->play2D("./assets/audio/music/heavy-rain.wav", true, false, true);
+        rain->setVolume(0.1f);
         rain->setMinDistance(1.0f);
         rain->setMaxDistance(3.0f);
 
@@ -209,13 +215,19 @@ void Input() {
 }
 
 void InitializeObjects() {
+    // Objects
     Mesh3D* testCube = scene.CreateObject("testCube", MeshData::CreateCube());
     testCube->SetPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     testCube->SetColor(colorTest);
     kadenTexture->LoadTexture("./assets/textures/kaden.jpg");
     boxTexture->LoadTexture("./assets/textures/container.jpg");
-    testCube->SetTexture(kadenTexture);
+    testCube->SetTexture(boxTexture);
 
+    // Light cube
+    Mesh3D* lightCube = scene.CreateObject("lightCube", MeshData::CreateCube(0.2f));
+    lightCube->SetPosition(glm::vec3(1.2f, 1.0f, -2.0f));
+    lightCube->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
+    lightCube->SetLightEmitter(true);
     /*for (float i = -20.0f; i < 20.0f; i += 1.0f) {
         for (float j = -20.0f; j < 20.0f; j += 1.0f) {
             Mesh3D* cube = scene.CreateObject(MeshData::CreateCube(0.1f));
@@ -227,7 +239,26 @@ void InitializeObjects() {
 
 void Draw() {
     scene.PrepareDraw(app.getWidth(), app.getHeight());
-    scene.DrawAll(camera.GetViewMatrix(), camera.GetProjectionMatrix(), graphicsShader);
+
+    Mesh3D* lightCube = scene.GetObject("lightCube");
+    Mesh3D* testCube = scene.GetObject("testCube");
+
+    glm::vec3 lightPos = lightCube->GetPosition();
+    graphicsShader->setUniformVec3("u_lightPos", lightPos);
+
+    // Set light color
+    glm::vec3 lightColor = lightCube->GetColor();
+    graphicsShader->setUniformVec3("u_lightColor", lightColor);
+
+    // Set object color
+    glm::vec3 objectColor = testCube->GetColor();
+    graphicsShader->setUniformVec3("u_objectColor", objectColor);
+
+    // Set view position (camera position)
+    graphicsShader->setUniformVec3("u_viewPos", camera.GetEye());
+
+    scene.DrawObjects(camera.GetViewMatrix(), camera.GetProjectionMatrix(), graphicsShader);
+    scene.DrawLightSources(camera.GetViewMatrix(), camera.GetProjectionMatrix(), lightingShader);
     scene.UpdateAll();
 }
 
@@ -252,6 +283,14 @@ void MainLoop() {
         vec3df cameraLook = vec3df(camera.GetLookDir().x, camera.GetEye().y, camera.GetEye().z);
 
         SoundEngine->setListenerPosition(cameraPos, cameraLook);
+
+        // Rotating light test
+        Mesh3D* testCube = scene.GetObject("testCube");
+        Mesh3D* lightCube = scene.GetObject("lightCube");
+
+        glm::vec3 cubePosition = testCube->GetPosition();
+
+        lightCube->SetPosition(glm::vec3(cubePosition.x + sin(currentFrame/1000), cubePosition.y, cubePosition.z + cos(currentFrame/1000)));
 
         Input();
 

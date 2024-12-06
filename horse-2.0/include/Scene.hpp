@@ -17,7 +17,8 @@ public:
 	Mesh3D* CreateObject(const std::string name, const MeshData& data);
 	Mesh3D* GetObject(const std::string name);
 	void PrepareDraw(int width, int height);
-	void DrawAll(const glm::mat4& view, const glm::mat4& projection, Shader* shader);
+	void DrawObjects(const glm::mat4& view, const glm::mat4& projection, Shader* shader);
+	void DrawLightSources(const glm::mat4& view, const glm::mat4& projection, Shader* lightShader);
 	void UpdateAll();
 	void CleanUpAll();
 
