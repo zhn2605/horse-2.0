@@ -26,6 +26,7 @@ public:
 private:
 	std::string m_name;
 	std::vector<std::unique_ptr<Mesh3D>> m_objects;
+	std::vector<std::unique_ptr<Mesh3D>> m_lightSources;
 	GLuint m_shaderProgram;
 };
 

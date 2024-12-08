@@ -83,10 +83,13 @@ void Mesh3D::Draw(Shader* shader) {
     if (useTexture) {
         glActiveTexture(GL_TEXTURE0);
         m_texture->Bind();
-        
         shader->setInt("textureSampler", 0);
     } 
 
+    // Handlle object color
+    shader->setUniformVec3("u_objectColor", m_color);
+
+    // Draw Mesh
     glBindVertexArray(m_vertexArrayObject);
     glBindBuffer(GL_ARRAY_BUFFER, m_vertexBufferObject);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBufferObject);

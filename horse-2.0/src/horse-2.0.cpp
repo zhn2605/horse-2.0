@@ -8,16 +8,22 @@
 // Third Party Libraries
 #include <SDL.h>
 #include <glad/glad.h>
-#include <irrKlang.h>
-using namespace irrklang;
-
-// Assets
-
 // GLM
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+// irrKlang
+#include <irrKlang.h>
+using namespace irrklang;
+// Assimp
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+// Assets
+
+
 
 // Libraries
 #include "Shader.hpp"
@@ -249,10 +255,6 @@ void Draw() {
     // Set light color
     glm::vec3 lightColor = lightCube->GetColor();
     graphicsShader->setUniformVec3("u_lightColor", lightColor);
-
-    // Set object color
-    glm::vec3 objectColor = testCube->GetColor();
-    graphicsShader->setUniformVec3("u_objectColor", objectColor);
 
     // Set view position (camera position)
     graphicsShader->setUniformVec3("u_viewPos", camera.GetEye());

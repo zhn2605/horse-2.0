@@ -9,13 +9,13 @@ void Scene::SetShaderProgram(GLuint shader) {
 }
 
 Mesh3D* Scene::CreateObject(const std::string name, const MeshData& data) {
-    auto mesh = std::make_unique<Mesh3D>();
-    mesh->SpecifyVertices(data.vertices, data.indices);
-    mesh->Initialize();
-    mesh->SetName(name);
+    auto obj = std::make_unique<Mesh3D>();
+    obj->SpecifyVertices(data.vertices, data.indices);
+    obj->Initialize();
+    obj->SetName(name);
 
-    Mesh3D* ptr = mesh.get();
-    m_objects.push_back(std::move(mesh));
+    Mesh3D* ptr = obj.get();
+    m_objects.push_back(std::move(obj));
     return ptr;
 }
 
