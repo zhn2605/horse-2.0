@@ -23,8 +23,6 @@ using namespace irrklang;
 
 // Assets
 
-
-
 // Libraries
 #include "Shader.hpp"
 #include "Mesh3D.hpp"
@@ -236,14 +234,21 @@ void InitializeObjects() {
     lightCube->SetLightEmitter(true);
     /*for (float i = -20.0f; i < 20.0f; i += 1.0f) {
         for (float j = -20.0f; j < 20.0f; j += 1.0f) {
-            Mesh3D* cube = scene.CreateObject(MeshData::CreateCube(0.1f));
+            Mesh3D* cube = scene.CreateObject("cubes", MeshData::CreateCube(0.1f));
             cube->SetPosition(glm::vec3(i, 0.0f, j));
         }
     }*/
 }
 
+void InitializeModels() {
+    // Models PLEASE PLEASEPLEASE PLESE
+    Mesh3D* modelCat = scene.CreateModel("kitten", "./assets/models/tamagotchi/Kitten/Kitten_01.obj");
 
-void Draw() {
+    modelCat->SetPosition(glm::vec3(0.0f, 0.0f, -2.0f));
+    modelCat->SetRotation(-90, glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void PrepareDraw() {
     scene.PrepareDraw(app.getWidth(), app.getHeight());
 
     Mesh3D* lightCube = scene.GetObject("lightCube");
@@ -258,7 +263,9 @@ void Draw() {
 
     // Set view position (camera position)
     graphicsShader->setUniformVec3("u_viewPos", camera.GetEye());
+}
 
+void Draw() {
     scene.DrawObjects(camera.GetViewMatrix(), camera.GetProjectionMatrix(), graphicsShader);
     scene.DrawLightSources(camera.GetViewMatrix(), camera.GetProjectionMatrix(), lightingShader);
     scene.UpdateAll();
@@ -296,6 +303,8 @@ void MainLoop() {
 
         Input();
 
+        PrepareDraw();
+
         Draw();
 
         // Update the screen
@@ -325,6 +334,8 @@ int main()
     CreateGraphicsPipeline();
 
     InitializeObjects();
+
+    InitializeModels();
 
     MainLoop();
 

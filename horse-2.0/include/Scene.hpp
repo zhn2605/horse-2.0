@@ -15,6 +15,8 @@ public:
 	Scene(GLuint shader);
 
 	Mesh3D* CreateObject(const std::string name, const MeshData& data);
+	Mesh3D* CreateModel(const std::string name, const std::string& filepath);
+
 	Mesh3D* GetObject(const std::string name);
 	void PrepareDraw(int width, int height);
 	void DrawObjects(const glm::mat4& view, const glm::mat4& projection, Shader* shader);

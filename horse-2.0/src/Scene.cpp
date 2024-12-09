@@ -19,6 +19,17 @@ Mesh3D* Scene::CreateObject(const std::string name, const MeshData& data) {
     return ptr;
 }
 
+Mesh3D* Scene::CreateModel(const std::string name, const std::string& filepath) {
+    auto obj = std::make_unique<Mesh3D>();
+    obj->LoadModel(filepath);
+    obj->InitializeModel();
+    obj->SetName(name);
+
+    Mesh3D* ptr = obj.get();
+    m_objects.push_back(std::move(obj));
+    return ptr;
+}
+
 Mesh3D* Scene::GetObject(const std::string name) {
     for (const auto& obj : m_objects) {
         if (obj->GetName() == name) {
@@ -45,23 +56,27 @@ void Scene::PrepareDraw(int width, int height) {
 }
 
 void Scene::DrawObjects(const glm::mat4& view, const glm::mat4& projection, Shader* shader) {
-    glUseProgram(m_shaderProgram);
-
     // Set view and projection matrices
     GLint viewLocation = glGetUniformLocation(m_shaderProgram, "u_ViewMatrix");
     GLint projLocation = glGetUniformLocation(m_shaderProgram, "u_Projection");
-
     if (viewLocation >= 0) glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
     if (projLocation >= 0) glUniformMatrix4fv(projLocation, 1, GL_FALSE, &projection[0][0]);
+
     for (const auto& obj : m_objects) {
         GLint modelLocation = glGetUniformLocation(m_shaderProgram, "u_ModelMatrix");
         if (modelLocation >= 0) {
             glm::mat4 model = obj->GetModelMatrix();
             glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &model[0][0]);
         }
+
+
         // Draw object
         if (obj->IsLightEmitter() == false) {
-            obj->Draw(shader);
+            if (!obj->GetProcessedVerticies().empty()) {
+                obj->DrawModel(shader);
+            } else {
+                obj->Draw(shader);
+            }
         }
     }
 }
