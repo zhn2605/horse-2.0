@@ -10,7 +10,7 @@ class Texture {
 public:
 	Texture();
 	
-	void LoadTexture(const std::string& filepath);
+	bool LoadTexture(const std::string& filepath);
 	void Bind(GLuint textureUnit = 0);
 	void Unbind();
 	void CleanUp();

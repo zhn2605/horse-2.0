@@ -34,6 +34,10 @@ void Mesh3D::ProcessNode(aiNode* node, const aiScene* scene) {
 }
 
 void Mesh3D::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
+    std::vector<Vertex> vertices;
+    std::vector<GLuint> indices;
+
+    // Process vertices
     for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
         Vertex vertex;
 
@@ -42,30 +46,65 @@ void Mesh3D::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
         vertex.Position.y = mesh->mVertices[i].y;
         vertex.Position.z = mesh->mVertices[i].z;
 
-        // Normals (if available)
+        // Normals
         if (mesh->HasNormals()) {
             vertex.Normal.x = mesh->mNormals[i].x;
             vertex.Normal.y = mesh->mNormals[i].y;
             vertex.Normal.z = mesh->mNormals[i].z;
         }
+        else {
+            vertex.Normal = glm::vec3(0.0f, 0.0f, 1.0f); // Default normal
+        }
 
-        // Textures (Set first)
-        if (mesh->mTextureCoords[0]) {
+        // Texture Coordinates
+        if (mesh->mTextureCoords[0]) { // Assumes first texture channel
             vertex.TexCoords.x = mesh->mTextureCoords[0][i].x;
             vertex.TexCoords.y = mesh->mTextureCoords[0][i].y;
         }
+        else {
+            vertex.TexCoords = glm::vec2(0.0f, 0.0f); // Default UV
+        }
 
-        // Populate already processed vertices
-        m_processedVertices.push_back(vertex);
+        // Add the vertex to the list
+        vertices.push_back(vertex);
     }
 
-    // Process indices
+    // Process indicies
     for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
         aiFace face = mesh->mFaces[i];
         for (unsigned int j = 0; j < face.mNumIndices; j++) {
-            m_processedIndices.push_back(face.mIndices[j]);
+            indices.push_back(face.mIndices[j]);
         }
     }
+
+    // Process materials
+    if (mesh->mMaterialIndex >= 0) {
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+        // Load diffuse color (Kd)
+        aiColor3D diffuseColor(1.0f, 1.0f, 1.0f); 
+        if (material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuseColor) == AI_SUCCESS) {
+            m_color = glm::vec3(diffuseColor.r, diffuseColor.g, diffuseColor.b);
+        }
+        else {
+            m_color = glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        // Load texture
+        aiString texturePath;
+        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath) == AI_SUCCESS) {
+            std::string fullPath = "./assets/models/" + std::string(texturePath.C_Str());
+            m_texture = new Texture();
+            if (!m_texture->LoadTexture(fullPath)) {
+                std::cerr << "Failed to load texture: " << fullPath << std::endl;
+                delete m_texture;
+                m_texture = nullptr;
+            }
+        }
+    }
+
+    m_processedVertices.insert(m_processedVertices.end(), vertices.begin(), vertices.end());
+    m_processedIndices.insert(m_processedIndices.end(), indices.begin(), indices.end());
 }
 
 void Mesh3D::Initialize() {

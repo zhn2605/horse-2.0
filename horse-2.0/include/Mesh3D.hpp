@@ -60,6 +60,7 @@ public:
     GLuint getIBO() const { return m_indexBufferObject; }
 private:
     Texture* m_texture = nullptr;
+    std::vector<Texture> m_textures;
 
     std::vector<GLfloat> m_vertices;
     std::vector<GLuint> m_indices;

@@ -243,13 +243,26 @@ void InitializeObjects() {
 void InitializeModels() {
     // Models PLEASE PLEASEPLEASE PLESE
     Mesh3D* modelCat = scene.CreateModel("kitten", "./assets/models/tamagotchi/Kitten/Kitten_01.obj");
-
     modelCat->SetPosition(glm::vec3(0.0f, 0.0f, -2.0f));
     modelCat->SetRotation(-90, glm::vec3(0.0f, 1.0f, 0.0f));
+    modelCat->SetScale(glm::vec3(0.3f, 0.3f, 0.3f));
+
+    Mesh3D* modelFrog = scene.CreateModel("frog", "./assets/models/tamagotchi/Frog/Frog_01.obj");
+    modelFrog->SetScale(glm::vec3(0.2f, 0.2f, 0.2f));
+    modelFrog->SetPosition(glm::vec3(10.0f, 0.0f, -2.0f));
+    modelFrog->SetRotation(-90, glm::vec3(0.0f, 1.0f, 0.0f));
+
+    Mesh3D* mushroom = scene.CreateModel("mushroom", "./assets/models/tamagotchi/Mushroom/Mushroom.fbx");
+    mushroom->SetScale(glm::vec3(1.0f, 1.0f, 1.0f));
+    mushroom->SetPosition(glm::vec3(-10.0f, 0.0f, -2.0f));
+    mushroom->SetRotation(-90, glm::vec3(1.0f, 1.0f, 0.0f));
 }
 
 void PrepareDraw() {
     scene.PrepareDraw(app.getWidth(), app.getHeight());
+
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     Mesh3D* lightCube = scene.GetObject("lightCube");
     Mesh3D* testCube = scene.GetObject("testCube");
@@ -280,7 +293,7 @@ void MainLoop() {
 
     while (app.isActive()) {
         // Create delta time
-        float currentFrame = 1.0 * SDL_GetTicks();
+        float currentFrame = 1.0f * SDL_GetTicks();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 

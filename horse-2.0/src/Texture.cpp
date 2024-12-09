@@ -6,7 +6,7 @@ Texture::Texture() {
 	m_channels = 0;
 }
 
-void Texture::LoadTexture(const std::string& filepath) {
+bool Texture::LoadTexture(const std::string& filepath) {
     // Load image data
     unsigned char* data = stbi_load(filepath.c_str(), &m_width, &m_height, &m_channels, 0);
 
@@ -29,7 +29,7 @@ void Texture::LoadTexture(const std::string& filepath) {
     else {
         std::cerr << "Unsupported image format" << std::endl;
         stbi_image_free(data);
-        return;
+        return 0;
     }
 
     if (data)
@@ -44,6 +44,7 @@ void Texture::LoadTexture(const std::string& filepath) {
 
     stbi_image_free(data);
     Unbind();
+    return 1;
 }
 
 void Texture::Bind(GLuint textureUnit) {

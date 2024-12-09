@@ -22,7 +22,7 @@ void main() {
     // Diffuse
     vec3 norm = normalize(v_normal);
     vec3 lightDir = normalize(u_lightPos - v_fragPos);
-    float diff = max(dot(norm, lightDir), 0.3f);
+    float diff = max(dot(norm, lightDir), 0.2f);
     vec3 diffuse = diff * u_lightColor;
     
     // Specular
@@ -35,6 +35,7 @@ void main() {
     // Combine
     vec3 result = (ambient + diffuse + specular) * u_objectColor;
     
+    
     // Texture blending
     if (u_useTexture) {
         vec4 texColor = texture(textureSampler, v_texCoords);
@@ -42,4 +43,6 @@ void main() {
     } else {
         color = vec4(result, 1.0);
     }
+
+    //color = texture(textureSampler, v_texCoords);
 }
